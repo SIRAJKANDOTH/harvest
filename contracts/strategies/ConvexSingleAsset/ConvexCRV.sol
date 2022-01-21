@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // pragma solidity ^0.8.0;
-pragma solidity ^0.5.0;
+pragma solidity >=0.5.0;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
@@ -965,5 +965,3 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         IERC20(underlying).safeTransfer(beneficiary, gasTokenCount);
     }
 }
-
-/**

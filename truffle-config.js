@@ -12,9 +12,9 @@ const token = process.env.INFURA_TOKEN_WSS;
 module.exports = {
   networks: {
     development: {
-      host: "localhost",
-      port: 8545,
-      network_id: "999",
+      host: "127.0.0.1",
+      port: 7545,
+      network_id: "*",
       websockets: true,
       gasPrice: 100 *(10**9),
       networkCheckTimeout: 999999,

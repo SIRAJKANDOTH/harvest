@@ -126,6 +126,8 @@ contract("Strategy Deposit", function (accounts) {
         console.log("usdt in Vault =", from6((await usdt.balanceOf(testVault.address)).toString()))
         console.log("usdn in User =", from18((await usdn.balanceOf(accounts[1])).toString()))
         console.log("usdn in Vault =", from18((await usdn.balanceOf(testVault.address)).toString()))
+        console.log("usdc in User =", from18((await usdc.balanceOf(accounts[1])).toString()))
+        console.log("usdc in Vault =", from18((await usdc.balanceOf(testVault.address)).toString()))
 
 
         //*****************************************************DEPOSIT**BEGINS***************************************************** */            
@@ -136,6 +138,8 @@ contract("Strategy Deposit", function (accounts) {
         // await testVault.deposit(frax.address, to18("10000"), { from: accounts[1] });
         // await testVault.deposit(uCrvUSDNToken.address, to18("10000"), { from: accounts[1] });
         // await testVault.deposit(crv3.address, to18("10000"), { from: accounts[1] });
+        console.log("===========================DEPOSIT ENDS=============================")
+
         //*****************************************************DEPOSIT**ENDS******************************************************* */            
 
 
@@ -143,8 +147,8 @@ contract("Strategy Deposit", function (accounts) {
         console.log("Vault Token Value =", from18(await testVault.tokenValueInUSD()).toString())
         console.log("usdt in User =", from6((await usdt.balanceOf(accounts[1])).toString()))
         console.log("usdt in Vault =", from6((await usdt.balanceOf(testVault.address)).toString()))
-        console.log("usdc in User =", from6((await usdt.balanceOf(accounts[1])).toString()))
-        console.log("usdc in Vault =", from6((await usdt.balanceOf(testVault.address)).toString()))
+        console.log("usdc in User =", from6((await usdc.balanceOf(accounts[1])).toString()))
+        console.log("usdc in Vault =", from6((await usdc.balanceOf(testVault.address)).toString()))
         console.log("usdn in User =", from18((await usdn.balanceOf(accounts[1])).toString()))
         console.log("usdn in Vault =", from18((await usdn.balanceOf(testVault.address)).toString()))
         console.log("crvUSDN in User =", from18((await uCrvUSDNToken.balanceOf(accounts[1])).toString()))
@@ -155,18 +159,23 @@ contract("Strategy Deposit", function (accounts) {
         console.log("crv3 in Vault =", from18((await crv3.balanceOf(testVault.address)).toString()))
         
         //Deposit into strategy
-         console.log("singleAsset3Crv NAV =", from18((await singleAsset3Crv.getStrategyNAV()).toString()))
-         console.log("singleAsset3Crv token value =", from18((await singleAsset3Crv.tokenValueInUSD()).toString()))
-         console.log("singleAsset3Crv token vault balance =", from18((await singleAsset3Crv.balanceOf(testVault.address)).toString()))
-         console.log("singleAsset3Crv crvFRAX tokens  =", from18((await crvFRAX.balanceOf(singleAsset3Crv.address)).toString()))
-         console.log("===================STRATEGY DEPOSIT=====================")
-         let earnInstruction =
-             web3.eth.abi.encodeParameters(['address[3]', 'uint256[3]', 'uint256', 'address[]', 'uint256[]'], [["0x6B175474E89094C44Da98b954EedeAC495271d0F", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "0xdac17f958d2ee523a2206206994597c13d831ec7"], [`${to18("0")}`, `${to6("1000")}`, `${to6("1000")}`], "1", ["0x674C6Ad92Fd080e4004b2312b45f796a192D27a0"], [`${to18("10000")}`]]);
- console.log("hellooooooozzzz")
-         await singleAsset3CrvMinter.earn(testVault.address, [usdt.address, usdn.address], [to6("20000"), to18("10000")], earnInstruction)
-        // console.log("singleAsset3Crv NAV =", from18((await singleAsset3Crv.getStrategyNAV()).toString()))
-        // console.log("singleAsset3Crv token value =", from18((await singleAsset3Crv.tokenValueInUSD()).toString()))
-        // console.log("singleAsset3Crv token vault balance =", from18((await singleAsset3Crv.balanceOf(testVault.address)).toString()))
+        //  console.log("singleAsset3Crv NAV =", from18((await singleAsset3Crv.getStrategyNAV()).toString()))
+        //  console.log("singleAsset3Crv token value =", from18((await singleAsset3Crv.tokenValueInUSD()).toString()))
+        //  console.log("singleAsset3Crv token vault balance =", from18((await singleAsset3Crv.balanceOf(testVault.address)).toString()))
+        //  //console.log("singleAsset3Crv crvFRAX tokens  =", from18((await crvFRAX.balanceOf(singleAsset3Crv.address)).toString()))
+        //  console.log("===================STRATEGY DEPOSIT=====================")
+        //  let earnInstruction =
+        //      web3.eth.abi.encodeParameters(['address[3]', 'uint256[3]', 'uint256', 'address[]', 'uint256[]'], [["0x6B175474E89094C44Da98b954EedeAC495271d0F", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "0xdac17f958d2ee523a2206206994597c13d831ec7"], [`${to18("0")}`, `${to6("1000")}`, `${to6("1000")}`], "1", [] ,[]]);
+           
+           
+        //      console.log("hellooooo")
+        //      await singleAsset3Crv.deposit(testVault.address, [usdt.address, usdn.address], [to6("1000"), to18("1000")], earnInstruction)
+         
+         
+        //  //await singleAsset3CrvMinter.deposit(testVault.address, [usdt.address, usdn.address], [to6("1000"), to18("1000")], earnInstruction)
+        //  console.log("singleAsset3Crv NAV =", from18((await singleAsset3Crv.getStrategyNAV()).toString()))
+        //  console.log("singleAsset3Crv token value =", from18((await singleAsset3Crv.tokenValueInUSD()).toString()))
+        //  console.log("singleAsset3Crv token vault balance =", from18((await singleAsset3Crv.balanceOf(testVault.address)).toString()))
         // console.log("singleAsset3Crv crvFRAX tokens  =", from18((await crvFRAX.balanceOf(singleAsset3Crv.address)).toString()))
         // console.log("Vault NAV =", from18(await testVault.getVaultNAV()).toString())
         // console.log("Vault Token Value =", from18(await testVault.tokenValueInUSD()).toString())
