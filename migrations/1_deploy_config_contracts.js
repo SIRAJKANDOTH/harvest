@@ -31,7 +31,7 @@ module.exports = async (deployer, network, accounts) => {
 
     const apContract = await APContract.deployed();
 
-    await deployer.deploy(PriceModule,"0x0000000022D53366457F9d5E68Ec105046FC4383");
+    await deployer.deploy(PriceModule);
     console.log("35")
     const priceModule=await PriceModule.deployed();
 console.log("36")
@@ -67,11 +67,37 @@ console.log("36")
 
   //adding tokens to price module
 console.log("adding price")
-        await priceModule.addToken("0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B","0xd962fc30a72a84ce50161031391756bf2876af5d",1)
-        //await priceModule.addToken("0xD533a949740bb3306d119CC777fa900bA034cd52","0xCd627aA160A6fA45Eb793D19Ef54f5062F20f33f",2)
+         await priceModule.addTokenInBatches(
+        ["0x4f3E8F405CF5aFC05D68142F3783bDfE13811522",//usdn3crv
+            "0x674C6Ad92Fd080e4004b2312b45f796a192D27a0",//usdn
+            "0x6B175474E89094C44Da98b954EedeAC495271d0F",//dai
+            "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",//usdc
+            "0xdac17f958d2ee523a2206206994597c13d831ec7",//usdt
+            "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",//crv3
+            "0x84E13785B5a27879921D6F685f041421C7F482dA",//crvProtocol
+            "0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B"//cvx
+        ],
+        ["0x0000000000000000000000000000000000000000",//usdn3crv
+            "0x7a8544894f7fd0c69cfcbe2b4b2e277b0b9a4355",//usdn
+            "0xAed0c38402a5d19df6E4c03F4E2DceD6e29c1ee9", //dai
+            "0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6",//usdc
+            "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D",//
+            "0x0000000000000000000000000000000000000000",
+            "0x0000000000000000000000000000000000000000",
+            "0xd962fc30a72a84ce50161031391756bf2876af5d",//cvx
+        ],
+        [  "2",
+             "1",
+            "1",
+            "1",
+            "1",
+            "2",
+            "3",
+            "1",
+        ]
+    )
 
-
-
+console.log("token added");
 
     //adding Protocols
     console.log("adding protocols")
