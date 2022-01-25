@@ -5,7 +5,6 @@ const ProxyFactory = artifacts.require("./proxies/YieldsterVaultProxyFactory.sol
 const YieldsterVault = artifacts.require("./YieldsterVault.sol");
 const ConvexSingleAssetStrategy = artifacts.require("./strategies/ConvexSingleAsset/ConvexCRV.sol");
 const ConvexSingleAssetStrategyMinter = artifacts.require("./strategies/ConvexSingleAsset/ConvexCRVMinter.sol");
-const PriceModule=artifacts.require("./price/PriceModule.sol");
 
 function to18(n) {
     return web3.utils.toWei(n, "ether");
@@ -38,19 +37,21 @@ contract("Strategy Deposit", function (accounts) {
         frax = await ERC20.at("0x853d955acef822db058eb8505911ed77f175b99e")
         uCrvUSDNToken = await ERC20.at("0x4f3E8F405CF5aFC05D68142F3783bDfE13811522")
         crv3 = await ERC20.at("0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490")
-       // cvx=await ERC20.at("0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B")
+        cvx=await ERC20.at("0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B")
+        crv=await ERC20.at("0xD533a949740bb3306d119CC777fa900bA034cd52")
+        cvxcrv=await ERC20.at("0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7")
       // booster = await ERC20.at("0x3689f325E88c2363274E5F3d44b6DaB8f9e1f524")
         //---------------------------END--CREATING-TOKENS-OBJECT--------------------------------------------//
 
         //-----------------------BEGIN--TOKEN-TRANSFER------------------------------------------------------//
-        await usdt.transfer(accounts[1], to6("100"))
-        await usdc.transfer(accounts[1], to6("100"))
-         await usdn.transfer(accounts[1], to18("100"))
-         await frax.transfer(accounts[1], to18("100"))
-         await uCrvUSDNToken.transfer(accounts[1], to18("100"))
-         await crv3.transfer(accounts[1], to18("100"))
-         //await cvx.transfer(accounts[1], to18("100"))
-        // await booster.transfer(accounts[1],to18("100"))
+         await usdt.transfer(accounts[1], to6("200"))
+         await usdc.transfer(accounts[1], to6("200"))
+         await usdn.transfer(accounts[1], to18("200"))
+         await frax.transfer(accounts[1], to18("200"))
+         await uCrvUSDNToken.transfer(accounts[1], to18("200"))
+         await crv3.transfer(accounts[1], to18("200"))
+         //await cvx.transfer(accounts[1], to18("200"))
+        // await booster.transfer(accounts[1],to18("200"))
 
         //-------------------------END--TOKEN-TRANSFER------------------------------------------------------//
 
@@ -60,9 +61,6 @@ contract("Strategy Deposit", function (accounts) {
         singleAsset3CrvMinter = await ConvexSingleAssetStrategyMinter.deployed()
         yieldsterVaultMasterCopy = await YieldsterVault.deployed()
         proxyFactory = await ProxyFactory.deployed()
-        priceModule=await PriceModule.deployed();
-
-
     });
 
 
@@ -95,11 +93,6 @@ contract("Strategy Deposit", function (accounts) {
         );
 
 
-        // //adding tokens to price module
-
-        // await priceModule.addToken("0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B","0xd962fC30A72A84cE50161031391756Bf2876Af5D",1)
-        // await priceModule.addToken("0xD533a949740bb3306d119CC777fa900bA034cd52","0xCd627aA160A6fA45Eb793D19Ef54f5062F20f33f",1)
-
         console.log("Register Vault with APS")
         await testVault.registerVaultWithAPS();
 
@@ -123,13 +116,13 @@ contract("Strategy Deposit", function (accounts) {
         
 
         //approve Tokens to vault
-        await usdt.approve(testVault.address, to6("100"), { from: accounts[1] })
-        await usdc.approve(testVault.address, to6("100"), { from: accounts[1] })
-        await usdn.approve(testVault.address, to18("100"), { from: accounts[1] })
-         await frax.approve(testVault.address, to18("100"), { from: accounts[1] })
-         await uCrvUSDNToken.approve(testVault.address, to18("100"), { from: accounts[1] })
-         await crv3.approve(testVault.address, to18("100"), { from: accounts[1] })
-       //  await cvx.approve(testVault.address, to18("100"), { from: accounts[1] })
+        await usdt.approve(testVault.address, to6("200"), { from: accounts[1] })
+        await usdc.approve(testVault.address, to6("200"), { from: accounts[1] })
+        await usdn.approve(testVault.address, to18("200"), { from: accounts[1] })
+         await frax.approve(testVault.address, to18("200"), { from: accounts[1] })
+         await uCrvUSDNToken.approve(testVault.address, to18("200"), { from: accounts[1] })
+         await crv3.approve(testVault.address, to18("200"), { from: accounts[1] })
+       //  await cvx.approve(testVault.address, to18("200"), { from: accounts[1] })
 
 
         console.log("Activating vault strategy ", singleAsset3Crv.address)
@@ -146,19 +139,18 @@ contract("Strategy Deposit", function (accounts) {
         console.log("usdn in Vault =", from18((await usdn.balanceOf(testVault.address)).toString()))
         console.log("usdc in User =", from6((await usdc.balanceOf(accounts[1])).toString()))
         console.log("usdc in Vault =", from6((await usdc.balanceOf(testVault.address)).toString()))
-        // console.log("usdn in User =", from18((await usdn.balanceOf(accounts[1])).toString()))
-        // console.log("usdn in Vault =", from18((await usdn.balanceOf(testVault.address)).toString()))
+        console.log("usdn in User =", from18((await usdn.balanceOf(accounts[1])).toString()))
+        console.log("usdn in Vault =", from18((await usdn.balanceOf(testVault.address)).toString()))
 
 
         //*****************************************************DEPOSIT**BEGINS***************************************************** */            
         console.log("===========================DEPOSIT=============================")
-        await testVault.deposit(usdt.address, to6("100"), { from: accounts[1] });
-        await testVault.deposit(usdc.address, to6("100"), { from: accounts[1] });
-        // await testVault.deposit(usdn.address, to18("100"), { from: accounts[1] });
-         await testVault.deposit(frax.address, to18("100"), { from: accounts[1] });
-         await testVault.deposit(uCrvUSDNToken.address, to18("100"), { from: accounts[1] });
-         await testVault.deposit(crv3.address, to18("100"), { from: accounts[1] });
-         await testVault.deposit(usdn.address, to18("100"), { from: accounts[1] });
+        await testVault.deposit(usdt.address, to6("200"), { from: accounts[1] });
+        await testVault.deposit(usdc.address, to6("200"), { from: accounts[1] });
+         //await testVault.deposit(frax.address, to18("200"), { from: accounts[1] });
+         await testVault.deposit(uCrvUSDNToken.address, to18("200"), { from: accounts[1] });
+         await testVault.deposit(crv3.address, to18("200"), { from: accounts[1] });
+         await testVault.deposit(usdn.address, to18("200"), { from: accounts[1] });
 
         console.log("===========================DEPOSIT ENDS=============================")
 
@@ -171,12 +163,12 @@ contract("Strategy Deposit", function (accounts) {
         console.log("usdt in Vault =", from6((await usdt.balanceOf(testVault.address)).toString()))
         console.log("usdc in User =", from6((await usdc.balanceOf(accounts[1])).toString()))
         console.log("usdc in Vault =", from6((await usdc.balanceOf(testVault.address)).toString()))
-        // console.log("usdn in User =", from18((await usdn.balanceOf(accounts[1])).toString()))
-        // console.log("usdn in Vault =", from18((await usdn.balanceOf(testVault.address)).toString()))
+        console.log("usdn in User =", from18((await usdn.balanceOf(accounts[1])).toString()))
+        console.log("usdn in Vault =", from18((await usdn.balanceOf(testVault.address)).toString()))
          console.log("crvUSDN in User =", from18((await uCrvUSDNToken.balanceOf(accounts[1])).toString()))
          console.log("crvUSDN in Vault =", from18((await uCrvUSDNToken.balanceOf(testVault.address)).toString()))
-        console.log("frax in User =", from18((await frax.balanceOf(accounts[1])).toString()))
-        console.log("frax in Vault =", from18((await frax.balanceOf(testVault.address)).toString()))
+       // console.log("frax in User =", from18((await frax.balanceOf(accounts[1])).toString()))
+       // console.log("frax in Vault =", from18((await frax.balanceOf(testVault.address)).toString()))
         console.log("crv3 in User =", from18((await crv3.balanceOf(accounts[1])).toString()))
         console.log("crv3 in Vault =", from18((await crv3.balanceOf(testVault.address)).toString()))
         console.log("usdn in User =", from18((await usdn.balanceOf(accounts[1])).toString()))
@@ -190,27 +182,44 @@ contract("Strategy Deposit", function (accounts) {
          console.log("===================STRATEGY DEPOSIT=====================")
           let earnInstruction =
              // web3.eth.abi.encodeParameters(['address[3]', 'uint256[3]', 'uint256', 'address[]', 'uint256[]'], [["0x6B175474E89094C44Da98b954EedeAC495271d0F", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "0xdac17f958d2ee523a2206206994597c13d831ec7"], [`${to18("0")}`, `${to6("100")}`, `${to6("100")}`], "1", ["0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"] ,[`${to18("100")}`]]);
-              web3.eth.abi.encodeParameters(['address[3]', 'uint256[3]', 'uint256', 'address[]', 'uint256[]'], [["0x6B175474E89094C44Da98b954EedeAC495271d0F", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "0xdac17f958d2ee523a2206206994597c13d831ec7"], [`${to18("0")}`, `${to6("100")}`, `${to6("100")}`], "1", ["0x4f3E8F405CF5aFC05D68142F3783bDfE13811522","0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490","0x674C6Ad92Fd080e4004b2312b45f796a192D27a0"] ,[`${to18("100")}`,`${to18("100")}`,`${to18("100")}`]]);
-           //console.log(earnInstruction);
-           
+              web3.eth.abi.encodeParameters(['address[3]', 'uint256[3]', 'uint256', 'address[]', 'uint256[]'], [["0x6B175474E89094C44Da98b954EedeAC495271d0F", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "0xdac17f958d2ee523a2206206994597c13d831ec7"], [`${to18("0")}`, `${to6("100")}`, `${to6("100")}`], "1", ["0x4f3E8F405CF5aFC05D68142F3783bDfE13811522","0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490","0x674C6Ad92Fd080e4004b2312b45f796a192D27a0"] ,[`${to18("100")}`,`${to18("100")}`,`${to18("100")}`]]);           
              console.log("hellooooo");
-            //  await singleAsset3Crv.deposit(testVault.address, [usdc.address, usdt.address], [to6("1000"), to6("1000")], earnInstruction)
      await singleAsset3CrvMinter.earn(testVault.address, [usdc.address, usdt.address,uCrvUSDNToken.address,crv3.address,usdn.address], [to6("100"), to6("100"),to18("100"),to18("100"),to18("100")], earnInstruction)
      console.log("hellooooozz");
-     console.log("---------the amount of reward received----------------------")
-     console.log("reward is",(await singleAsset3Crv.calculateReward()).toString());
+
+    // console.log("shares==",(await singleAsset3Crv._sharesnew()).toString())
+
+    // console.log("---------the amount of reward received----------------------")
+    // console.log("reward is",(await singleAsset3Crv.calculateReward()).toString());
+
+     await singleAsset3CrvMinter.earn(testVault.address, [usdc.address, usdt.address,uCrvUSDNToken.address,crv3.address,usdn.address], [to6("100"), to6("100"),to18("100"),to18("100"),to18("100")], earnInstruction)
+     console.log("second earn");
+
+    // console.log("---------the amount of reward received----------------------")
+  // console.log("reward is",(await singleAsset3Crv.calculateReward()).toString());
      console.log("----------------harvesting the reward--------------------------")
      await singleAsset3Crv.harvest();
+
+     console.log("cvx balance before staking==",(await cvx.balanceOf(singleAsset3Crv.address)).toString())
+     console.log("crv balance before staking==",(await crv.balanceOf(singleAsset3Crv.address)).toString())
+     console.log("3crv balance before staking==",(await crv3.balanceOf(singleAsset3Crv.address)).toString())
+     console.log("cvxcrv balance before staking==",(await cvxcrv.balanceOf(singleAsset3Crv.address)).toString())
+
      console.log("----------------staking all reward---------------")
      await singleAsset3Crv.stake();
+
+     console.log("cvx balance after staking==",(await cvx.balanceOf(singleAsset3Crv.address)).toString())
+     console.log("crv balance after staking==",(await crv.balanceOf(singleAsset3Crv.address)).toString())
+     console.log("3crv balance after staking==",(await crv3.balanceOf(singleAsset3Crv.address)).toString())
+     console.log("cvxcrv balance after staking==",(await cvxcrv.balanceOf(singleAsset3Crv.address)).toString())
      console.log("heyyyyy reachedd-----")
 
       
          
-        // //  //await singleAsset3CrvMinter.deposit(testVault.address, [usdt.address, usdn.address], [to6("1000"), to18("1000")], earnInstruction)
-            console.log("singleAsset3Crv NAV =", from18((await singleAsset3Crv.getStrategyNAV()).toString()))
-          console.log("singleAsset3Crv token value =", from18((await singleAsset3Crv.tokenValueInUSD()).toString()))
-          console.log("singleAsset3Crv token vault balance =", from18((await singleAsset3Crv.balanceOf(testVault.address)).toString()))
+      //await singleAsset3CrvMinter.deposit(testVault.address, [usdt.address, usdn.address], [to6("1000"), to18("1000")], earnInstruction)
+        console.log("singleAsset3Crv NAV =", from18((await singleAsset3Crv.getStrategyNAV()).toString()))
+        console.log("singleAsset3Crv token value =", from18((await singleAsset3Crv.tokenValueInUSD()).toString()))
+        console.log("singleAsset3Crv token vault balance =", from18((await singleAsset3Crv.balanceOf(testVault.address)).toString()))
         //console.log("singleAsset3Crv crvFRAX tokens  =", from18((await crvFRAX.balanceOf(singleAsset3Crv.address)).toString()))
         console.log("Vault NAV =", from18(await testVault.getVaultNAV()).toString())
         console.log("Vault Token Value =", from18(await testVault.tokenValueInUSD()).toString())
@@ -250,24 +259,26 @@ contract("Strategy Deposit", function (accounts) {
         // console.log("uCrvFRAXToken in Vault after strategy withdraw", from18((await uCrvFRAXToken.balanceOf(testVault.address)).toString()))
 
 
-        // //Withdraw from vault 
-        // console.log("===========================WITHDRAW=============================")
-        // console.log("Vault NAV", from18(await testVault.getVaultNAV()).toString())
-        // console.log("Vault Token Value", from18(await testVault.tokenValueInUSD()).toString())
+        //Withdraw from vault 
+        console.log("===========================WITHDRAW=============================")
+        console.log("Vault NAV", from18(await testVault.getVaultNAV()).toString())
+        console.log("Vault Token Value", from18(await testVault.tokenValueInUSD()).toString())
         // console.log("dai in User ", from18(await dai.balanceOf(accounts[1])).toString())
         // console.log("dai in Vault ", from18((await dai.balanceOf(testVault.address)).toString()))
         // console.log("usdc in User ", from6((await usdc.balanceOf(accounts[1])).toString()))
         // console.log("usdc in Vault ", from6((await usdc.balanceOf(testVault.address)).toString()))
-        // console.log("usdt in User", from6((await usdt.balanceOf(accounts[1])).toString()))
-        // console.log("usdt in Vault", from6((await usdt.balanceOf(testVault.address)).toString()))
+        console.log("usdt in User", from6((await usdt.balanceOf(accounts[1])).toString()))
+        console.log("usdt in Vault", from6((await usdt.balanceOf(testVault.address)).toString()))
         // console.log("usdn in User ", from18((await usdn.balanceOf(accounts[1])).toString()))
         // console.log("usdn in Vault ", from18((await usdn.balanceOf(testVault.address)).toString()))
         // console.log("crv3 in User ", from18((await crv3.balanceOf(accounts[1])).toString()))
         // console.log("crv3 in Vault ", from18((await crv3.balanceOf(testVault.address)).toString()))
         // console.log("crvFRAX in User ", from18((await crvFRAX.balanceOf(accounts[1])).toString()))
         // console.log("crvFRAX in Vault ", from18((await crvFRAX.balanceOf(testVault.address)).toString()))
-        // console.log("=================================================================")
-        // await testVault.withdraw(uCrvFRAXToken.address, (await testVault.balanceOf(accounts[1])).toString(), { from: accounts[1], gas: 100000 });
+         console.log("=================================================================")
+       //  await testVault.withdraw(usdt.address,to6("50"),{from:accounts[1]});
+        
+      //   await testVault.withdraw(usdt.address, (await testVault.balanceOf(accounts[1)).toString(), { from: accounts[1], gas: 100000 });
         // // await testVault.withdraw(usdt.address, to18("200"), { from: accounts[1], gas: 10000000 });
         // console.log("Vault NAV", from18(await testVault.getVaultNAV()).toString())
         // console.log("Vault Token Value", from18(await testVault.tokenValueInUSD()).toString())
@@ -275,8 +286,8 @@ contract("Strategy Deposit", function (accounts) {
         // console.log("dai in Vault ", from18((await dai.balanceOf(testVault.address)).toString()))
         // console.log("usdc in User ", from6((await usdc.balanceOf(accounts[1])).toString()))
         // console.log("usdc in Vault ", from6((await usdc.balanceOf(testVault.address)).toString()))
-        // console.log("usdt in User", from6((await usdt.balanceOf(accounts[1])).toString()))
-        // console.log("usdt in Vault", from6((await usdt.balanceOf(testVault.address)).toString()))
+     //   //  console.log("usdt in User", from6((await usdt.balanceOf(accounts[1])).toString()))
+        //  console.log("usdt in Vault", from6((await usdt.balanceOf(testVault.address)).toString()))
         // console.log("usdn in User ", from18((await usdn.balanceOf(accounts[1])).toString()))
         // console.log("usdn in Vault ", from18((await usdn.balanceOf(testVault.address)).toString()))
         // console.log("crv3 in User ", from18((await crv3.balanceOf(accounts[1])).toString()))

@@ -5,17 +5,17 @@ const SafeMinter = artifacts.require("./safeUtils/SafeMinter.sol")
 const YieldsterVault = artifacts.require("./YieldsterVault.sol");
 const ProxyFactory = artifacts.require("./proxies/YieldsterVaultProxyFactory.sol");
 const SafeUtils = artifacts.require("./safeUtils/SafeUtils.sol");
-//const PriceModule=artifacts.require("./price/PriceModule.sol");
-console.log("at 9")
+const PriceModule = artifacts.require("./price/PriceModule.sol");
 
-const PriceModule=artifacts.require("C:/Users/96879/yieldster/yieldster-vault/contracts/price/PriceModule.sol");
-console.log("at 11")
+//const PriceModule=artifacts.require("C:/Users/96879/yieldster/yieldster-vault/contracts/price/PriceModule.sol");
 
 
 module.exports = async (deployer, network, accounts) => {
 
     await deployer.deploy(SafeUtils);
     let safeUtils = await SafeUtils.deployed()
+    await deployer.deploy(PriceModule);
+    const priceModule = await PriceModule.deployed();
 
     await deployer.deploy(
         APContract,
@@ -25,16 +25,14 @@ module.exports = async (deployer, network, accounts) => {
         "0xAE9a070bed8b80050e3b8A26c169496b55C00D94",
         "0x507F9C130d6405Cd001A9073Adef371dD9fA3F72",
         "0x0dAA47FAC1440931A968FA606373Af69EEcd9b83",
-        "0xc98435837175795d216547a8edc9e0472604bbda",
+        //"0xc98435837175795d216547a8edc9e0472604bbda",  //deployed price module address
+        priceModule.address,
         safeUtils.address //"0x0E6B1f325dD47420823843ff96942a8a627C79A4"
     );
 
     const apContract = await APContract.deployed();
 
-    await deployer.deploy(PriceModule);
-    console.log("35")
-    const priceModule=await PriceModule.deployed();
-console.log("36")
+
     await deployer.deploy(StockDeposit);
     await deployer.deploy(StockWithdraw);
 
@@ -65,17 +63,18 @@ console.log("36")
     await apContract.addAsset("crvFRAX", "crvFRAX Coin", "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139")
 
 
-  //adding tokens to price module
-console.log("adding price")
-         await priceModule.addTokenInBatches(
-        ["0x4f3E8F405CF5aFC05D68142F3783bDfE13811522",//usdn3crv
+    //adding tokens to price module
+    console.log("adding price")
+    await priceModule.addTokenInBatches(
+        ["0x4f3E8F405CF5aFC05D68142F3783bDfE13811522",//usdn3crv //curve lp token
             "0x674C6Ad92Fd080e4004b2312b45f796a192D27a0",//usdn
             "0x6B175474E89094C44Da98b954EedeAC495271d0F",//dai
             "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",//usdc
             "0xdac17f958d2ee523a2206206994597c13d831ec7",//usdt
             "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",//crv3
             "0x84E13785B5a27879921D6F685f041421C7F482dA",//crvProtocol
-            "0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B"//cvx
+            "0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B",//cvx
+            "0xD533a949740bb3306d119CC777fa900bA034cd52"//crv
         ],
         ["0x0000000000000000000000000000000000000000",//usdn3crv
             "0x7a8544894f7fd0c69cfcbe2b4b2e277b0b9a4355",//usdn
@@ -85,21 +84,20 @@ console.log("adding price")
             "0x0000000000000000000000000000000000000000",
             "0x0000000000000000000000000000000000000000",
             "0xd962fc30a72a84ce50161031391756bf2876af5d",//cvx
+            "0xCd627aA160A6fA45Eb793D19Ef54f5062F20f33f"
         ],
-        [  "2",
-             "1",
+        [   "2",
+            "1",
             "1",
             "1",
             "1",
             "2",
             "3",
             "1",
+            "1"
         ]
     )
 
-console.log("token added");
-
-    //adding Protocols
     console.log("adding protocols")
 
     await apContract.addProtocol(
