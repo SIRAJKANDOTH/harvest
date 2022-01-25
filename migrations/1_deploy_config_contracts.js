@@ -5,6 +5,12 @@ const SafeMinter = artifacts.require("./safeUtils/SafeMinter.sol")
 const YieldsterVault = artifacts.require("./YieldsterVault.sol");
 const ProxyFactory = artifacts.require("./proxies/YieldsterVaultProxyFactory.sol");
 const SafeUtils = artifacts.require("./safeUtils/SafeUtils.sol");
+//const PriceModule=artifacts.require("./price/PriceModule.sol");
+console.log("at 9")
+
+const PriceModule=artifacts.require("C:/Users/96879/yieldster/yieldster-vault/contracts/price/PriceModule.sol");
+console.log("at 11")
+
 
 module.exports = async (deployer, network, accounts) => {
 
@@ -25,6 +31,10 @@ module.exports = async (deployer, network, accounts) => {
 
     const apContract = await APContract.deployed();
 
+    await deployer.deploy(PriceModule,"0x0000000022D53366457F9d5E68Ec105046FC4383");
+    console.log("35")
+    const priceModule=await PriceModule.deployed();
+console.log("36")
     await deployer.deploy(StockDeposit);
     await deployer.deploy(StockWithdraw);
 
@@ -53,6 +63,14 @@ module.exports = async (deployer, network, accounts) => {
     await apContract.addAsset("crvUSDN", "crvUSDN Coin", "0x3B96d491f067912D18563d56858Ba7d6EC67a6fa")
     await apContract.addAsset("crvBUSD", "crvBUSD Coin", "0x6Ede7F19df5df6EF23bD5B9CeDb651580Bdf56Ca")
     await apContract.addAsset("crvFRAX", "crvFRAX Coin", "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139")
+
+
+  //adding tokens to price module
+console.log("adding price")
+        await priceModule.addToken("0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B","0xd962fc30a72a84ce50161031391756bf2876af5d",1)
+        //await priceModule.addToken("0xD533a949740bb3306d119CC777fa900bA034cd52","0xCd627aA160A6fA45Eb793D19Ef54f5062F20f33f",2)
+
+
 
 
     //adding Protocols

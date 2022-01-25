@@ -73,6 +73,7 @@ contract ConvexCRVMinter is ERC1155 {
             IAPContract(APContract).strategyExecutor(strategy) == msg.sender,
             "Only Yieldster Strategy Executor"
         );
+        //revert("at line 76");
         IYieldsterVault(safeAddress).earn(_assets, _amount, data);
     }
 }

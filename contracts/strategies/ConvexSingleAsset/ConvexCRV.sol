@@ -29,6 +29,7 @@ contract ConvexCRV is ERC20, ERC20Detailed {
 
     address private APContract;
     address private owner;
+    address public priceModule= 0xC98435837175795D216547a8eDc9E0472604BBdA;
     address private crv3Token = 0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490;
     address private crvAddressProvider =
         0x0000000022D53366457F9d5E68Ec105046FC4383;
@@ -37,7 +38,7 @@ contract ConvexCRV is ERC20, ERC20Detailed {
 
     uint256 public poolInfoID;
     uint256 public protocolBalance;
-    address private baseToken;
+    address private baseToken; //USDN
     address private convexDeposit = 0xF403C135812408BFbE8713b5A23a04b3D48AAE31;
     mapping(address => bool) isRegistered;
 
@@ -177,6 +178,7 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         uint256[3] memory amounts,
         uint256 min_mint_amount
     ) internal returns (uint256) {
+
         address pool = ICrvRegistry(getRegistry()).get_pool_from_lp_token(
             crv3Token
         );
@@ -287,7 +289,8 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         uint256 cvxTokens;
         for (uint256 i = 0; i < otherAssets.length; i++) {
             if (otherAssets[i] == crvLPToken)
-                underlyingTokens += otherAmounts[i]; //asset3CRV Token
+                underlyingTokens += otherAmounts[i];
+                //revert("asset is curlptoken"); //asset3CRV Token
             else if (otherAssets[i] == baseToken)
                 baseTokens += otherAmounts[i]; //baseAsset token
             else if (otherAssets[i] == crv3Token)
@@ -353,6 +356,7 @@ contract ConvexCRV is ERC20, ERC20Detailed {
                 }
             }
         }
+        //revert("function reached at deposit to 3crv target pool");
         uint256 underlyingBefore = IERC20(crvLPToken).balanceOf(address(this));
         ICrvPool(pool).add_liquidity(amounts, min_mint_amount);
         uint256 underlyingAfter = IERC20(crvLPToken).balanceOf(address(this));
@@ -367,6 +371,7 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         );
         _approveToken(crvLPToken, convexDeposit, amount);
         bool status = IConvex(convexDeposit).deposit(poolInfoID, amount, true);
+      //  revert("depositToCVx");
         if (status) return amount;
         else revert("Deposit to CVX Failed");
     }
@@ -377,7 +382,8 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         (, , , address baseRewards, , ) = IConvex(convexDeposit).poolInfo(
             poolInfoID
         );
-        IRewards(baseRewards).stakeFor(address(this), amount);
+        IRewards(baseRewards).stakeFor(address(this), amount); //adrs(this) receive staking token
+        revert("function reached at staketocvx");
         return amount;
     }
 
@@ -426,11 +432,12 @@ contract ConvexCRV is ERC20, ERC20Detailed {
                 otherBaseReturn
             );
 
-        if (CVXUnderlyingReturn + otherCVXUnderlyingReturn > 0)
+        if (CVXUnderlyingReturn + otherCVXUnderlyingReturn > 0) //deposis crvLptoken into cvx
             CVXUnderlyingTokens = depositToCVX(
                 CVXUnderlyingReturn + otherCVXUnderlyingReturn
             );
-
+            //CVXUnderlyingTokens contain hw many crvLPtokens have been deposited to convex
+//revert("convex code reached here in handle depo");
         if (cvxTokens > 0) cvxStakedReturns = stakeToCVX(cvxTokens);
         return cvxStakedReturns + CVXUnderlyingTokens;
     }
@@ -443,18 +450,22 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         address[] calldata _depositAssets,
         uint256[] calldata _amounts,
         bytes calldata data
-    ) external onlyRegisteredVault {
+    ) external onlyRegisteredVault{
+        //revert("at 453 strtgy depost");
         (address crvLPToken, , , , , bool shutdown) = IConvex(convexDeposit)
             .poolInfo(poolInfoID);
 
         require(shutdown != true, "Pool shutdown");
+        //revert("at 458");
         address pool = ICrvRegistry(getRegistry()).get_pool_from_lp_token(
             crvLPToken
         );
+       // revert("at 461");
         require(pool != address(0), "pool not present");
 
         for (uint256 i = 0; i < _depositAssets.length; i++) {
             if (_amounts[i] > 0) {
+                //revert("at 467");
                 IERC20(_depositAssets[i]).safeTransferFrom(
                     msg.sender,
                     address(this),
@@ -462,9 +473,10 @@ contract ConvexCRV is ERC20, ERC20Detailed {
                 );
             }
         }
+        // revert("at 471 in convx");
+        uint256 cvxPoolTokens = handleDeposit(data);  //(cvxrlyingstakedReturn+cnvunderlyngToken)
 
-        uint256 cvxPoolTokens = handleDeposit(data);
-
+       // return(cvxPoolTokens);
         uint256 _shares;
         if (totalSupply() == 0) _shares = cvxPoolTokens;
         else _shares = getMintValue(getDepositNAV(crvLPToken, cvxPoolTokens));
@@ -476,6 +488,7 @@ contract ConvexCRV is ERC20, ERC20Detailed {
     /// @dev Function to calculate the strategy tokens to be minted for given nav.
     /// @param depositNAV NAV for the amount.
     function getMintValue(uint256 depositNAV) internal view returns (uint256) {
+        //revert("code reached at  deposit nav");
         return (depositNAV.mul(totalSupply())).div(getStrategyNAV());
     }
 
@@ -512,18 +525,20 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         uint256 cvxcrvbal = IRewards(cvxcrvRewardContract).balanceOf(
             address(this)
         ); //crvbal
+        if (protocolBalance >0 || cvxbal > 0 || cvxcrvbal > 0) {
 
-        if (protocolBalance > 0 || cvxbal > 0 || cvxcrvbal > 0) {
             uint256 tokenUSD = IAPContract(APContract).getUSDPrice(crvLPToken);
 
             //balance of lpToken
             uint256 lpBal = IHexUtils(IAPContract(APContract).stringUtils())
                 .toDecimals(crvLPToken, protocolBalance);
-
+            //revert("at 535");
             // //price of cvx and cvxcrv in USD
             uint256 cvxUSD = IAPContract(APContract).getUSDPrice(cvx);
+            revert("538");
             // uint256 cvxcrvUSD = IAPContract(APContract).getUSDPrice(cvxcrv); //Uncomment in production
             uint256 cvxcrvUSD = IAPContract(APContract).getUSDPrice(crv);
+
 
             uint256 balance = ((lpBal.mul(tokenUSD)) +
                 (cvxbal.mul(cvxUSD)) +
@@ -541,7 +556,9 @@ contract ConvexCRV is ERC20, ERC20Detailed {
             3) get usd price of cvxCRV and CVX
             4) now, get the total prices of both the tokens and add it to the strategy nav.
              */
-        } else return 0;
+        } 
+        else return 0;
+      // else revert("559");
     }
 
     /// @dev Function to calculate the NAV of a given token and amount.
@@ -552,6 +569,7 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         view
         returns (uint256)
     {
+       // revert("reverted at getDepositNAV");
         uint256 tokenUSD = IAPContract(APContract).getUSDPrice(_tokenAddress);
         return
             (
@@ -566,21 +584,21 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         else return (getStrategyNAV().mul(1e18)).div(totalSupply());
     }
 
-    // //calculate reward of convex reward pool
-    // function calculateReward()
-    //     public
-    //     view
-    //     returns (address[] memory, uint256[] memory)
-    // {
-    //     address[] memory extraRewards = new address[](1);
-    //     uint256[] memory extraRewardsValue = new uint256[](1);
-    //     extraRewardsValue[0] = IRewards(convexRewardContract).earned(
-    //         address(this)
-    //     );
-    //     extraRewards[0] = cvx;
+    //calculate reward of convex reward pool
+    function calculateReward()
+        public
+        view
+        returns (address[] memory, uint256[] memory)
+    {
+        address[] memory extraRewards = new address[](1);  //convexToken //cvx
+        uint256[] memory extraRewardsValue = new uint256[](1);
+        extraRewardsValue[0] = IRewards(convexRewardContract).earned(
+            address(this)
+        );
+        extraRewards[0] = cvx;
 
-    //     return (extraRewards, extraRewardsValue);
-    // }
+        return (extraRewards, extraRewardsValue);
+    }
 
     
     //calculate reward of base pool and cvxcrv pool

@@ -387,6 +387,7 @@ contract YieldsterVault is VaultStorage {
                 _approveToken(_assets[i], strategy, _amount[i]);
             }
         }
+       // revert("line at 390 earn");
         IStrategy(strategy).deposit(_assets, _amount, data);
     }
 
