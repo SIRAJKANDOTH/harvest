@@ -548,20 +548,20 @@ contract ConvexCRV is ERC20, ERC20Detailed {
     }
 
     //calculate reward of convex reward pool
-    function calculateReward()
-        public
-        view
-        returns (address[] memory, uint256[] memory)
-    {
-        address[] memory extraRewards = new address[](1);  //convexToken //cvx
-        uint256[] memory extraRewardsValue = new uint256[](1);
-        extraRewardsValue[0] = IRewards(convexRewardContract).earned(
-            address(this)
-        );
-        extraRewards[0] = cvx;
+    // function calculateReward()
+    //     public
+    //     view
+    //     returns (address[] memory, uint256[] memory)
+    // {
+    //     address[] memory extraRewards = new address[](1);  //convexToken //cvx
+    //     uint256[] memory extraRewardsValue = new uint256[](1);
+    //     extraRewardsValue[0] = IRewards(convexRewardContract).earned(
+    //         address(this)
+    //     );
+    //     extraRewards[0] = cvx;
 
-        return (extraRewards, extraRewardsValue);
-    }
+    //     return (extraRewards, extraRewardsValue);
+    // }
 
     
     //calculate reward of base pool and cvxcrv pool

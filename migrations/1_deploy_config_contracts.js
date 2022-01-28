@@ -7,8 +7,6 @@ const ProxyFactory = artifacts.require("./proxies/YieldsterVaultProxyFactory.sol
 const SafeUtils = artifacts.require("./safeUtils/SafeUtils.sol");
 const PriceModule = artifacts.require("./price/PriceModule.sol");
 
-//const PriceModule=artifacts.require("C:/Users/96879/yieldster/yieldster-vault/contracts/price/PriceModule.sol");
-
 
 module.exports = async (deployer, network, accounts) => {
 
@@ -125,4 +123,6 @@ module.exports = async (deployer, network, accounts) => {
     await apContract.addProxyFactory(proxyFactory.address);
 
     console.log(`APS Address :- ${apContract.address}`)
+
+   
 };

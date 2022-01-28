@@ -7,6 +7,7 @@ contract StockDeposit is VaultStorage {
     /// @param _tokenAddress Address of the deposit token.
     /// @param _amount Amount of deposit token.
     function deposit(address _tokenAddress, uint256 _amount) public {
+        //revert("at stockdeposit");
         uint256 _share;
         IERC20 token = IERC20(_tokenAddress);
         if (totalSupply() == 0) {

@@ -337,6 +337,7 @@ contract YieldsterVault is VaultStorage {
             "You don't have enough shares"
         );
         managementFeeCleanUp();
+       // revert("at 340 vault");
         (bool result, ) = IAPContract(APContract)
             .getWithdrawStrategy()
             .delegatecall(
@@ -387,7 +388,6 @@ contract YieldsterVault is VaultStorage {
                 _approveToken(_assets[i], strategy, _amount[i]);
             }
         }
-       // revert("line at 390 earn");
         IStrategy(strategy).deposit(_assets, _amount, data);
     }
 

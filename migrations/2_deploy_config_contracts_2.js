@@ -30,7 +30,6 @@ module.exports = async (deployer, network, accounts) => {
         accounts[0],
         "0"
     );
-
     console.log(`CVX USDN :- ${cvxUSDN.address}`);
     console.log(`CVX USDN Minter :- ${convexCRVMinter.address}`);
     

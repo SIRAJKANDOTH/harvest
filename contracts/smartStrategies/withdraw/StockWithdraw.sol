@@ -217,7 +217,7 @@ contract StockWithdraw is VaultStorage {
     /// @param _tokenAddress Address of the withdraw token.
     /// @param _shares Amount of Vault token shares.
     function withdraw(address _tokenAddress, uint256 _shares) public {
-        revert("hey at 220 in stock");
+       // revert("hey");
         addToAssetList(_tokenAddress);
         uint256 tokenUSD = IAPContract(APContract).getUSDPrice(_tokenAddress);
         uint256 tokenCount = (
