@@ -14,7 +14,7 @@ module.exports = {
     development: {
       host: "127.0.0.1",
       port: 7545,
-      network_id: "*",
+      network_id: "999",
       websockets: true,
       gasPrice: 100 *(10**9),
       networkCheckTimeout: 999999,
