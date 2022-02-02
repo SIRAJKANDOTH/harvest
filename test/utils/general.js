@@ -1,8 +1,10 @@
+
 const util = require('util');
 const solc = require('solc')
 const abi = require("ethereumjs-abi")
+// const web3 = require('web3');
 //const SolidityEvent = require("web3/lib/web3/event.js");
-const ModuleDataWrapper = new web3.eth.Contract([{ "constant": false, "inputs": [{ "name": "data", "type": "bytes" }], "name": "setup", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }]);
+ const ModuleDataWrapper = new web3.eth.Contract([{ "constant": false, "inputs": [{ "name": "data", "type": "bytes" }], "name": "setup", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }]);
 
 const Address0 = "0x".padEnd(42, '0')
 
