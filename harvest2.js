@@ -2,6 +2,7 @@ const Web3 = require("web3")
 const web3 = new Web3("http://localhost:8545")
 const BN = web3.utils.BN;
 let estimatedgas;
+// MIM, 3CRV, alUSD, Frax, USDN
 //to estimate gas cost of GasCheck function
 function to18(n) {
   return web3.utils.toWei(n, "ether");
@@ -33,7 +34,7 @@ const GasCheck = async () => {
       // console.log("encoded enc ",enc)
  
       estimatedgas=await web3.eth.estimateGas({
-          to: "0x638EA4ac79Bf19d9b15Ab5966379773BACc032dD",
+          to: "0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD",
           data: enc
       });
       // console.log("estimated gas is",estimatedgas);    
@@ -75,12 +76,12 @@ const GasCheck = async () => {
       let extraRewardLength=await cvxCrvRewardContract.methods.extraRewardsLength().call();
       console.log("extraRewardLength is",extraRewardLength)
       // console.log("this changed");
-      let cvxBal=await convexRewardContract.methods.balanceOf("0x638EA4ac79Bf19d9b15Ab5966379773BACc032dD").call()
+      let cvxBal=await convexRewardContract.methods.balanceOf("0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD").call()
       // console.log("balance in proper decimals",await from18(cvxBal));
      
-      console.log("cvxBal is",cvxBal)
-      let cvxcrvBal=await cvxCrvRewardContract.methods.balanceOf("0x638EA4ac79Bf19d9b15Ab5966379773BACc032dD").call()
-      console.log("cvxcrvBal is",cvxcrvBal)
+      console.log("cvxBal is(balanceOf)",cvxBal)
+      let cvxcrvBal=await cvxCrvRewardContract.methods.balanceOf("0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD").call()
+      console.log("cvxcrvBal is(balanceOf)",cvxcrvBal)
  
       let cvxUSD=await apContract.methods.getUSDPrice(cvx).call();
       console.log("cvxUSD",cvxUSD)
@@ -89,19 +90,24 @@ const GasCheck = async () => {
 
  
       let NAV=((from18(cvxBal)*(cvxUSD/10**18))+(from18(cvxcrvBal)*(cvxcrvUSD/10**18)))
-      console.log("NAV is",NAV)
- 
+      console.log("NAV is(balanceOf)",NAV)
+      let cvxcrv_earned=await cvxCrvRewardContract.methods.earned("0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD").call();
+            console.log("earned cvxcrv",cvxcrv_earned);
+            let cvx_earned=await convexRewardContract.methods.earned("0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD").call();
+            console.log("earned cvx",cvx_earned);
+            let NAV_earned=((from18(cvx_earned)*(cvxUSD/10**18))+(from18(cvxcrv_earned)*(cvxcrvUSD/10**18)))
+            // console.log("NAV (earned)",NAV_earned);
       if(extraRewardLength>0){
       // let user="0xd4d5BFC4992b1BD4D13CD95E67523B32c9c2DB9B"; //convexCrv.address(address(this))
      
      
       for (i = 0; i < extraRewardLength; i++){
-            let cvxcrv_earned=await cvxCrvRewardContract.methods.earned("0x638EA4ac79Bf19d9b15Ab5966379773BACc032dD").call();
-            console.log("earned cvxcrv",cvxcrv_earned);
-          // extraRewardsValue[i]=await cvxRewardContract.methods.earned("0x638EA4ac79Bf19d9b15Ab5966379773BACc032dD").call();
+            
+
+          // extraRewardsValue[i]=await cvxRewardContract.methods.earned("0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD").call();
             // console.log("RewardsValue earned by strategy",extraRewardsValue[i] )
           extraReward[i]=await cvxCrvRewardContract.methods.extraRewards(i).call();  //no getting exact revert token
-         // console.log("extraReward ",extraReward[i] )
+         console.log("extraReward conrtract",extraReward[i] );
           //to find the reward Token
            let extraRewardContract=new web3.eth.Contract(IRewardsABI,extraReward[i])
           let rewardToken=await extraRewardContract.methods.rewardToken().call()
@@ -110,14 +116,24 @@ const GasCheck = async () => {
           console.log("extra rewardToken is",rewardToken)
           //await extraRewardContract.methods.getReward().call()
           // if(extraRewardsValue[i]>0){
-          //   await rewardTokenBalanceContract.methods.transfer("0x638EA4ac79Bf19d9b15Ab5966379773BACc032dD",extraRewardsValue[i])
+          //   await rewardTokenBalanceContract.methods.transfer("0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD",extraRewardsValue[i])
           // }
           // console.log("hey")
-         
-          let rewardTokenBalance=await rewardTokenBalanceContract.methods.balanceOf("0x638EA4ac79Bf19d9b15Ab5966379773BACc032dD").call()
-            console.log("extra rewardTokenBalance",rewardTokenBalance)
-          rewardInUSD[i]=await apContract.methods.getUSDPrice(rewardToken).call() //get price coingecko
-          NAV+=(rewardTokenBalance*rewardInUSD[i]);
+          // let rewardTokenBalance_new=await extraRewardContract.methods.balanceOf("0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD").call()
+          // console.log("reward contract balance(rewardtoken.balanceof(strategy))",rewardTokenBalance_new);
+          let rewardTokenBalance=await extraRewardContract.methods.balanceOf("0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD").call()
+          let rewardTokenBalance_earned=await extraRewardContract.methods.earned("0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD").call()
+          console.log("extra rewardTokenBalance(earned)",rewardTokenBalance_earned);
+          
+
+            console.log("extra rewardTokenBalance(balanceof)",rewardTokenBalance)
+
+          rewardInUSD[i]=await apContract.methods.getUSDPrice(rewardToken).call() 
+          // console.log("extra reward USD price",rewardInUSD[i]);
+          //get price coingecko
+            NAV+=(from18(rewardTokenBalance)*(rewardInUSD[i]/10**18));
+            NAV_earned+=(from18(rewardTokenBalance_earned))*((rewardInUSD[i])/10**18);
+            console.log("NAV (when earn is calld)",NAV_earned);
           //NAV+=(extraRewardsValue[i]*rewardInUSD[i]);
       }
  
