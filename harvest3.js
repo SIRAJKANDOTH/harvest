@@ -9,7 +9,7 @@ const BN = web3.utils.BN;
   function from6(n) {return web3.utils.fromWei(n, "Mwei");}
 
 
-//   const convexCrv= new web3.eth.Contract(convexCrvABI,"0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD");
+//   const convexCrv= new web3.eth.Contract(convexCrvABI,"strategyAddress");
 
 
 // req variables
@@ -24,24 +24,43 @@ const BN = web3.utils.BN;
       let ERC20=require('./build/contracts/IERC20.json').abi;
       let apContractABI=require('./build/contracts/APContract.json').abi;
       let IRewardsABI=require("./build/contracts/IRewards.json").abi
+      let ITokenMinterABI=require("./build/contracts/ITokenMinter.json").abi;
+      let minterdeployedaddress="0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B";
     //   create contract instances
+    let ITokenMinterContract=new web3.eth.Contract(apContractABI,minterdeployedaddress);
     let apContract=new web3.eth.Contract(apContractABI,"0x984F84520495f499Fa67E3316CA8CfffBB87f54E");
-    let convexCrv= new web3.eth.Contract(convexCrvABI,"0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD");
+    let strategyAddress="0x78c8cBb3042CE92F07053E519ab7f564bDEce9C2";
+    let convexCrv= new web3.eth.Contract(convexCrvABI,strategyAddress);
     let convexRewardContract= new web3.eth.Contract(IRewardsABI,convexRewardContractAddress);
     let cvxCrvRewardContract= new web3.eth.Contract(IRewardsABI,cvxCrvRewardContractAddress);
     let base_pool_contract=new web3.eth.Contract(IRewardsABI,basepool_address);
+    
     // other variables
-    let NAV=new BN();
+    let NAV=new BN("0");
+    console.log(typeof(NAV))
+    let num1=new BN(NAV);
+    console.log(typeof(num1));
+    let num=new BN((new BN(NAV)).add(new BN("10")))
+    // console.log(num.toString());
+    let NAV1=new BN("0");
+    let NAV2=new BN("0");
+    let NAV3=new BN("0");
+    let NAV4=new BN("0");
+    
+
     // CRV CRV3 CVX are rewards from cvcxrv contract
     let crv_reward,cvxcrv_reward,CRV,CRV3,CVX;
     // gettokenprices;
     let crv_USD,cvxcrv_USD,cvx_USD,crv3_USD,rewardToken;
-    // crv_USD=await apContract.methods.getUSDPrice(crv).call()
-    // cvxcrv_USD=await apContract.methods.getUSDPrice(crv).call()
-    // cvx_USD=await apContract.methods.getUSDPrice(crv).call()
-    // crv3_USD=await apContract.methods.getUSDPrice(rewardToken).call()
+    
 
-
+    const start= async()=>{
+      const calcNav=()=>{
+        let Nav=new BN(new BN(NAV1).add(new BN(NAV2)))
+        console.log("actural NAV is",Nav.toString())
+      }
+      console.log("NUM",num);
+      console.log("mum type",typeof(num));
     const setUSDvalues= async()=>{
         crv_USD=await apContract.methods.getUSDPrice(crv).call()
     cvxcrv_USD=await apContract.methods.getUSDPrice(crv).call()
@@ -50,69 +69,140 @@ const BN = web3.utils.BN;
 
 
     }
-    setUSDvalues();
+     await setUSDvalues();
+     function decimals(n, d) {
+      if ((typeof n !== 'number') || (typeof d !== 'number'))
+        return false;
+           n = parseFloat(n) || 0;
+       return n.toFixed(d);
+       }
     
     // function to find basepool rewards
     const CalcBasepoolReward= async ()=>{
         
-         crv_reward=await base_pool_contract.methods.earned("0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD").call();
-        //  console.log("CRV",crv_reward);
+         crv_reward=await base_pool_contract.methods.earned(strategyAddress).call();
+                
         // TODO
         // MINT LOGIC
-        // NAV+=(from18(crv_reward))*((crv_USD)/10**18);
-
-       
+          // NAV1=new BN(NAV1).add((new BN(crv_reward))/(new BN((10**18).toString()))*(new BN(crv_USD)/new BN((10**18).toString())))
+         console.log(typeof("NAV 1 TYPE",NAV1))
+        
 
     } 
 
     const CalcCVXRewards= async ()=>{
         
-         cvxcrv_reward=await convexRewardContract.methods.earned("0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD").call();
-         NAV+=(new BN(from18(cvxcrv_reward)))*(new BN((cvx_USD)));
-        //  let NAVofCvx=(new BN(cvxEarned)*(new BN(cvxUSD)))
-        //  console.log(NAV)
-        crv_USD=await apContract.methods.getUSDPrice(crv).call()
-        // console.log("price",cvx_USD)
+
+         cvxcrv_reward=await convexRewardContract.methods.earned(strategyAddress).call();
+         NAV+=parseInt((new BN(cvxcrv_reward))/(new BN((10**18).toString()))*(new BN(cvxcrv_USD)/new BN((10**18).toString())))
+          NAV2=(new BN(cvxcrv_reward))/(new BN((10**18).toString()))*(new BN(cvxcrv_USD)/new BN((10**18).toString()))       
          
          
     }
 
     const CalcCVXcrv= async ()=>{
 
-       CRV=await cvxCrvRewardContract.methods.earned("0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD").call();
+       CRV=await cvxCrvRewardContract.methods.earned(strategyAddress).call();
     //    extra reward calculation(3crv)
          let extraReward =await cvxCrvRewardContract.methods.extraRewards(0).call();
          let extraRewardContract=new web3.eth.Contract(IRewardsABI,extraReward)
           rewardToken=await extraRewardContract.methods.rewardToken().call()
-         CRV3 =await extraRewardContract.methods.earned("0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD").call();
-        //  NAV+=(from18(CRV))*((crv_USD)/10**18)+(from18(CRV3))*((crv3_USD)/10**18)
+         CRV3 =await extraRewardContract.methods.earned(strategyAddress).call();
+         NAV+=parseInt((new BN(CRV3))/(new BN((10**18).toString()))*(new BN(crv3_USD)/new BN((10**18).toString())))
+         NAV+=parseInt((new BN(CRV))/(new BN((10**18).toString()))*(new BN(crv_USD)/new BN((10**18).toString())))
+         NAV3=(new BN(CRV3))/(new BN((10**18).toString()))*(new BN(crv3_USD)/new BN((10**18).toString()))
+         NAV4=(new BN(CRV))/(new BN((10**18).toString()))*(new BN(crv_USD)/new BN((10**18).toString()))
         //  MINT LOGIC TO FIND OUT CVX
-
- 
-
 
 
     }
-     
-     CalcBasepoolReward();
-     CalcCVXRewards();
-     CalcCVXcrv();
-     setUSDvalues();
+
 
      
-     setTimeout(() => { console.log("-------------------basepool--------------") }, 2000);
+     
+       CalcBasepoolReward();
+     CalcCVXRewards();
+     CalcCVXcrv();
+      calcNav();
+    //  setUSDvalues();
+
+     
+     setTimeout(() => { console.log("-------------basepool Rewards--------------") }, 2000);
      setTimeout(() => { console.log("CRV",crv_reward); }, 2000);
      setTimeout(() => { console.log("----------convex reward contract---------") }, 2000);
      setTimeout(() => {  console.log("cvxcrv",cvxcrv_reward); }, 2000);
-     setTimeout(() => { console.log("----------CVXCRV REWARD CONTRACT----------") }, 2000);
+     setTimeout(() => { console.log("----------CVXCRV REWARD contract----------") }, 2000);
      setTimeout(() => {  console.log("Crv earned",CRV); }, 4000);
      setTimeout(() => {  console.log("3crv earned",CRV3); }, 4000);
-     setTimeout(() => {  console.log("NAV",NAV); }, 10000);
+    //  NAV.toString();
+    
+     setTimeout(() => {  console.log("NAV",parseInt(NAV)); }, 5000);
+    //  setTimeout(() => {  console.log("NAV is",); }, 5000);
+    }
+    const mint = async (crvAmount) => {
+      try {
+          console.log("============called mint()=============")
+          let maxSupply = await ITokenMinterContract.methods.maxSupply().call()
+          let totalCliffs = await ITokenMinterContract.methods.totalCliffs().call()
+          console.log("totalCliffs===", totalCliffs)
+  
+          let totalSupplyContract = new web3.eth.Contract(VaultStorageABI, crv)
+          let supply = await totalSupplyContract.methods.totalSupply().call()
+          console.log("supply===", supply)
+  
+          let reductionPerCliff = maxSupply / totalCliffs;     //check value
+          console.log("reductionPerCliff===", reductionPerCliff)
+  
+          let cvxToBeMinted = crvAmount;
+          console.log("cvx =====", cvxToBeMinted)    // is initially required ?
+  
+          if (supply == 0) {
+              cvxToBeMinted = crvAmount;
+              console.log("hello")
+              console.log("cvxToBeMinted=", cvxToBeMinted)
+          }
+          let cliff = supply / (reductionPerCliff);
+          console.log("cliff=", cliff)
+  
+          if (cliff < totalCliffs) {
+              reduction = totalCliffs - (cliff);
+  
+              cvxToBeMinted = cvxCrvEarned.mul(reduction).div(totalCliffs);
+              console.log("cvxToBeMinted=", cvxToBeMinted)
+  
+              let amtTillMax = maxSupply.sub(supply);
+              if (cvxToBeMinted > amtTillMax) {
+                  cvxToBeMinted = amtTillMax;
+              }
+  
+          }
+  
+          console.log("cvx To be minted=", cvxToBeMinted)
+          let cvxUSD = await apContract.methods.getUSDPrice(cvx).call();
+          console.log("cvxUSD=", cvxUSD)
+  
+          NAVofCVXminted = new BN(new BN(cvxToBeMinted.toString()).mul(new BN(cvxUSD.toString())))
+          console.log("NAVofCVXminted=", NAVofCVXminted)
+      }
+      catch (error) {
+          console.log(`error inside mint function ${error} )
+      }
+  }
+  
+  
+  start();
     //  NAV+=(new BN(cvxcrv_reward))*(new BN(cvx_USD));
     //  console.log(NAV)
 
 
     //  nav calc
+  //   console.log("amount",(new BN(crv_reward))/(new BN((10**18).toString())));
+  //   console.log("proper price",new BN(crv_USD)/new BN((10**18).toString()));
+  // //  console.log("prop foramt",new BN('1234').add(new BN('1')).toString());
+  //    //(new BN(10**18)))
+  //    console.log("earned crv in biggest unit",new BN(crv_reward)/  (new BN((10**18).toString)))
+  //    console.log("before dividing",(new BN(crv_reward)*new BN(crv_USD)));
+     
 
     
     

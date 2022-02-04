@@ -120,7 +120,7 @@ contract("Strategy Deposit", function (accounts) {
         await usdc.approve(testVault.address, to6("200"), { from: accounts[1] })
         await usdn.approve(testVault.address, to18("200"), { from: accounts[1] })
         //  await frax.approve(testVault.address, to18("200"), { from: accounts[1] })
-        //  await uCrvUSDNToken.approve(testVault.address, to18("200"), { from: accounts[1] })
+        //  await uCrvUSDNToken.approve(testVault.address, to18("200"), { from: accounts[1]  })
          await crv3.approve(testVault.address, to18("200"), { from: accounts[1] })
        //  await cvx.approve(testVault.address, to18("200"), { from: accounts[1] })
 
