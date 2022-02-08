@@ -2033,11 +2033,11 @@ const list = [
 //  { unlockedAddress: "0xc564ee9f21ed8a2d8e7e76c085740d5e4c5fafbe", tokenAddress: "0x853d955aCEf822Db058eb8505911ED77F175b99e",name:"frax"},//frax
 //  { unlockedAddress: "0x52ce284c712517e938987a9bdf7861ecd4cda571", tokenAddress: "0x4f3E8F405CF5aFC05D68142F3783bDfE13811522",name:"crvusdn"},//crvusdn
  { unlockedAddress: "0x47ac0fb4f2d84898e4d9e7b4dab3c24507a6d503", tokenAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",name:"usdc"},//usdc
- { unlockedAddress: "0x7421c1ed16b400e4868ce696452c3c985f8cd04d", tokenAddress: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",name:"3crv"},//3crv
+  { unlockedAddress: "0x79dcf9b238516b1cf1ded4f84d35c6f1dcdd76c7", tokenAddress: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",name:"3crv"},//3crv
  { unlockedAddress: "0xa6dd652a5f685a98d1def975463ee721635b35d5", tokenAddress: "0x674C6Ad92Fd080e4004b2312b45f796a192D27a0",name:"usdn"}//usdn
 
 ]
-//  ganache-cli --fork https://mainnet.infura.io/v3/6b7e574215f04cd3b9ec93f791a8b6c6 -u 0x5754284f345afc66a98fbb0a0afe71e0f007b949 -u 0x28c6c06298d514db089934071355e5743bf21d60 -u 0xc564ee9f21ed8a2d8e7e76c085740d5e4c5fafbe -u 0x52ce284c712517e938987a9bdf7861ecd4cda571 -u 0x47ac0fb4f2d84898e4d9e7b4dab3c24507a6d503  -u 0x7421c1ed16b400e4868ce696452c3c985f8cd04d  -u 0xa6dd652a5f685a98d1def975463ee721635b35d5  -m "upset engage shrug pudding spare draft toddler extend ghost clever moon aspect"
+//   ganache-cli --fork https://mainnet.infura.io/v3/6b7e574215f04cd3b9ec93f791a8b6c6 -u 0x5754284f345afc66a98fbb0a0afe71e0f007b949 -u 0x28c6c06298d514db089934071355e5743bf21d60 -u 0xc564ee9f21ed8a2d8e7e76c085740d5e4c5fafbe -u 0x52ce284c712517e938987a9bdf7861ecd4cda571 -u 0x47ac0fb4f2d84898e4d9e7b4dab3c24507a6d503  -u 0x79dcf9b238516b1cf1ded4f84d35c6f1dcdd76c7  -u 0xa6dd652a5f685a98d1def975463ee721635b35d5  -m "upset engage shrug pudding spare draft toddler extend ghost clever moon aspect"
 
 
 
@@ -2069,6 +2069,7 @@ const transferTokens = async (tokenList) => {
         let unlockedBalance = new BN('1000');
         let decimals = await tokenContract.methods.decimals().call()
         let amountToBeTransferred = unlockedBalance.mul((new BN('10')).pow(new BN(decimals)))
+        console.log(amountToBeTransferred.toString());
          console.log("Transfering ", amountToBeTransferred.toString(), " of token ", token.tokenAddress, "from holder ", token.unlockedAddress)
        
         // await web3.eth.sendTransaction({
@@ -2079,7 +2080,7 @@ const transferTokens = async (tokenList) => {
         // })
         // console.log("balance ", await tokenContract.methods.balanceOf(recipientAddress).call());
         // console.log(await tokenContract.methods.transfer(recipientAddress, amountToBeTransferred.toString()).send({ from: token.unlockedAddress, gas: "4000000" }));
-        await tokenContract.methods.transfer(recipientAddress, amountToBeTransferred.toString()).send({ from: token.unlockedAddress, gas: "4000000" });
+          await tokenContract.methods.transfer(recipientAddress, amountToBeTransferred.toString()).send({ from: token.unlockedAddress, gas: "4000000" });
         console.log("balance of",token.name, await tokenContract.methods.balanceOf(recipientAddress).call());
 
     }))
