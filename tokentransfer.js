@@ -2032,12 +2032,13 @@ const list = [
 // { unlockedAddress: "0x577ebc5de943e35cdf9ecb5bbe1f7d7cb6c7c647", tokenAddress: "0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7",name:"cvxcrv"},//cvxcrv
 //  { unlockedAddress: "0xc564ee9f21ed8a2d8e7e76c085740d5e4c5fafbe", tokenAddress: "0x853d955aCEf822Db058eb8505911ED77F175b99e",name:"frax"},//frax
 //  { unlockedAddress: "0x52ce284c712517e938987a9bdf7861ecd4cda571", tokenAddress: "0x4f3E8F405CF5aFC05D68142F3783bDfE13811522",name:"crvusdn"},//crvusdn
- { unlockedAddress: "0x47ac0fb4f2d84898e4d9e7b4dab3c24507a6d503", tokenAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",name:"usdc"},//usdc
-  { unlockedAddress: "0x79dcf9b238516b1cf1ded4f84d35c6f1dcdd76c7", tokenAddress: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",name:"3crv"},//3crv
- { unlockedAddress: "0xa6dd652a5f685a98d1def975463ee721635b35d5", tokenAddress: "0x674C6Ad92Fd080e4004b2312b45f796a192D27a0",name:"usdn"}//usdn
+  { unlockedAddress: "0x47ac0fb4f2d84898e4d9e7b4dab3c24507a6d503", tokenAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",name:"usdc"},//usdc
+  { unlockedAddress: "0x1347f81b2451b6fdd8ea4b2f4e521e611a2eed05", tokenAddress: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",name:"3crv"},//3crv
+
+  { unlockedAddress: "0x019e0f58a7df4bcabaab8c13bffd7d684473ae11", tokenAddress: "0x674C6Ad92Fd080e4004b2312b45f796a192D27a0",name:"usdn"}//usdn
 
 ]
-//   ganache-cli --fork https://mainnet.infura.io/v3/6b7e574215f04cd3b9ec93f791a8b6c6 -u 0x5754284f345afc66a98fbb0a0afe71e0f007b949 -u 0x28c6c06298d514db089934071355e5743bf21d60 -u 0xc564ee9f21ed8a2d8e7e76c085740d5e4c5fafbe -u 0x52ce284c712517e938987a9bdf7861ecd4cda571 -u 0x47ac0fb4f2d84898e4d9e7b4dab3c24507a6d503  -u 0x79dcf9b238516b1cf1ded4f84d35c6f1dcdd76c7  -u 0xa6dd652a5f685a98d1def975463ee721635b35d5  -m "upset engage shrug pudding spare draft toddler extend ghost clever moon aspect"
+//   ganache-cli --fork https://mainnet.infura.io/v3/6b7e574215f04cd3b9ec93f791a8b6c6 -u 0x5754284f345afc66a98fbb0a0afe71e0f007b949 -u 0x28c6c06298d514db089934071355e5743bf21d60 -u 0xc564ee9f21ed8a2d8e7e76c085740d5e4c5fafbe -u 0x52ce284c712517e938987a9bdf7861ecd4cda571 -u 0x47ac0fb4f2d84898e4d9e7b4dab3c24507a6d503  -u 0x1347f81b2451b6fdd8ea4b2f4e521e611a2eed05  -u 0x019e0f58a7df4bcabaab8c13bffd7d684473ae11  -m "upset engage shrug pudding spare draft toddler extend ghost clever moon aspect"
 
 
 

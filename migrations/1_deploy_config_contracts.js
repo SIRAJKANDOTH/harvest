@@ -29,6 +29,7 @@ module.exports = async (deployer, network, accounts) => {
     );
 
     const apContract = await APContract.deployed();
+    console.log("ap contract form deployed",apContract.address)
 
 
     await deployer.deploy(StockDeposit);

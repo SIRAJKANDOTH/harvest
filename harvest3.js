@@ -39,12 +39,13 @@ let ITokenMinterContract = new web3.eth.Contract(
 );
 // THINGS TO ADD
 let cvx_cvxcrv_nav,cvx_basepool_nav;
+let Nav_total=new BN("0");
 // console.log(ITokenMinterContract);
 let apContract = new web3.eth.Contract(
   apContractABI,
   "0x984F84520495f499Fa67E3316CA8CfffBB87f54E"
 );
-let strategyAddress = "0xC6eF976681819e448bf0CE16C962e91d303b4777";
+let strategyAddress = "0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD";
 let convexCrv = new web3.eth.Contract(convexCrvABI, strategyAddress);
 let convexRewardContract = new web3.eth.Contract(
   IRewardsABI,
@@ -78,6 +79,58 @@ const start = async () => {
   const calcNav = () => {};
   // console.log("NUM", num);
   // console.log("mum type", typeof num);
+  const GasCheck = async () => {
+    try {
+      // let convexCrvABI=require('./build/contracts/ConvexCRV.json').abi
+      // let netId=await web3.eth.net.getId()
+      // // 02console.log("netId==",netId)
+      // //let convexCrvData=convexCrvABI.networks[netId]
+      //   const converCrv= new web3.eth.Contract(convexCrvABI,"0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD");
+        const enc= await web3.eth.abi.encodeFunctionSignature({
+          name: 'harvest',
+          type: 'function',
+          inputs: [{
+     
+          }]
+      })
+ 
+      // console.log("encoded enc ",enc)
+ 
+      estimatedgas=await web3.eth.estimateGas({
+          to: "0xC9Ad669B000888f813499a18a7aEC412Da85B034",
+          data: enc
+      });
+       console.log("estimated gas is",estimatedgas);    
+     
+    } catch (error) {
+        console.log(`gas estimation error: ${error}`)
+    }
+ 
+  }
+  const  harvestCheck=async(NAV)=>{
+    let Threshold=(5/100)*NAV;
+      // console.log("Threshold" ,Threshold.toString())
+      console.log("Threshold(5% Nav)" ,Threshold)
+       await GasCheck();
+      // console.log("after GasCheck")
+      console.log("estimatedgas:",estimatedgas)
+      let price =0.0003 ;
+      let gascost=estimatedgas*price;
+      console.log("gas price in USD",price);
+      console.log("Gas cost",gascost);
+      
+
+      
+      if(gascost<Threshold){
+        await converCrv.methods.harvest();
+        console.log("harvest() called");
+      }
+      else{
+        console.log("gas cost is higher than threshold,harvest not called");
+      }
+     
+    
+  }
   const setUSDvalues = async () => {
     crv_USD = await apContract.methods.getUSDPrice(crv).call();
     cvxcrv_USD = await apContract.methods.getUSDPrice(crv).call();
@@ -102,6 +155,7 @@ const start = async () => {
     
     cvx_basepool_nav=await mint(crv_reward);
     
+    
     console.log("basepool cvx nav",cvx_basepool_nav);
     NAV1 =
       (new BN(crv_reward) / new BN((10 ** 18).toString())) *
@@ -121,7 +175,7 @@ const start = async () => {
     NAV2 =
       (new BN(cvxcrv_reward) / new BN((10 ** 18).toString())) *
       (new BN(cvxcrv_USD) / new BN((10 ** 18).toString()));
-    console.log("nav 2", NAV2.toString());
+    // console.log("nav 2", NAV2.toString());
     NavEffective+=new BN(new BN("NAV2").add(new BN("0")))
   };
   CalcCVXRewards()
@@ -143,13 +197,14 @@ const start = async () => {
     //     (new BN(crv_USD) / new BN((10 ** 18).toString()))
     // );
     NAV3 =
-      (new BN(CRV3) / new BN((10 ** 18).toString())) *
+      (new BN(CRV3) / (new BN((10 ** 18).toString()))) *
       (new BN(crv3_USD) / new BN((10 ** 18).toString()));
+      
     NAV4 =
       (new BN(CRV) / new BN((10 ** 18).toString())) *
       (new BN(crv_USD) / new BN((10 ** 18).toString()));
-    console.log("nav 3", NAV3.toString());
-    console.log("nav 4", NAV4.toString());
+    // console.log("nav 3", NAV3.toString());
+    // console.log("nav 4", NAV4.toString());
     // let Nav = new BN(new BN(NAV3).add(new BN(NAV4)));
     //  console.log("actural NAV is",Nav.toString())
     ////////////////////////////////////////////////////////////////////
@@ -159,12 +214,29 @@ const start = async () => {
      cvx_cvxcrv_nav=await mint(CRV);
     // console.log("cvxcrv contract cvx nav",cvx_cvxcrv_nav);
     NavEffective+=new BN(new BN("NAV3").add(new BN("NAV4")).add(new BN("cvx_cvxcrv_nav")))
-    console.log("NavEffective",NavEffective)
+    // console.log("NavEffective",NavEffective)
+    // FIND TOTAL NAV
+    let num1 = new BN("15");
+// console.log(typeof num1);
+let NAV = new BN("1");
+   let num = new BN(new BN(NAV).add(new BN("10")));
+   console.log("num 1 is",num.toString())
+   console.log(typeof(NAV1),typeof(NAV2),typeof(NAV3),typeof(NAV4),typeof(cvx_basepool_nav),typeof(cvx_cvxcrv_nav))
+    console.log((NAV1),(NAV2),(NAV3),(NAV4),(cvx_basepool_nav),(cvx_cvxcrv_nav));
+    Nav_total=new BN(new BN("NAV1").add(new BN("NAV2").add(new BN("NAV3").add(new BN("NAV4")).add(new BN("cvx_basepool_nav").add(new BN("cvx_cvxcrv_nav"))))))
+     let Nav_total2=new BN(new BN("NAV1").add(new BN("NAV2").add(new BN("NAV3").add(new BN("NAV4")).add(new BN("cvx_basepool_nav").add(new BN("cvx_cvxcrv_nav"))))))
+    console.log("sum test",typeof(NAV1),typeof(new BN("NAV1")),NAV1,new BN("NAV").toString(),new BN(NAV).toString())
+    console.log("sum test2",(new BN("NAV2")).toString())
+    console.log("total NAV",Nav_total.toString());
+    console.log("total NAV",Nav_total2.toString());
+    
   };
-
-  CalcBasepoolReward();
-  CalcCVXRewards();
-  CalcCVXcrv();
+  await GasCheck()
+  await CalcBasepoolReward();
+  await CalcCVXRewards();
+  await CalcCVXcrv();
+  let Total_Nav=(NAV1)+(NAV2)+(NAV3)+(NAV4)+(cvx_basepool_nav)+(cvx_cvxcrv_nav);
+  await harvestCheck(Total_Nav); 
   // calcNav();
    setUSDvalues();
 
@@ -189,26 +261,26 @@ const start = async () => {
   setTimeout(() => {
     console.log("3crv earned", CRV3);
   }, 4000);
-  setTimeout(() => {
-    console.log(typeof(NAV1),typeof(NAV2),typeof(NAV3),typeof(NAV4),typeof(cvx_basepool_nav),typeof(cvx_cvxcrv_nav))
-
-  }, 10000);
   // setTimeout(() => {
-    console.log("Nav effectiveee",(NAV1)+(NAV2)+(NAV3)+(NAV4))
+  //   console.log(typeof(NAV1),typeof(NAV2),typeof(NAV3),typeof(NAV4),typeof(cvx_basepool_nav),typeof(cvx_cvxcrv_nav))
+
+  // }, 10000);
+  // setTimeout(() => {
+    console.log("Nav effectiveee",(NAV1)+(NAV2)+(NAV3)+(NAV4)+(cvx_basepool_nav)+(cvx_cvxcrv_nav))
     // +(cvx_basepol_nav)+(cvx_cvxcrv_nav)
 
   // }, 25000);
-  setTimeout(() => {
-    console.log("type of unresolved",typeof(cvx_basepol_nav),typeof(cvx_cvxcrv_nav))
+  // setTimeout(() => {
+  //   console.log("type of unresolved",typeof(cvx_basepool_nav),typeof(cvx_cvxcrv_nav))
 
-  }, 25000);
+  // }, 25000);
   //  NAV.toString();
 
   //  setTimeout(() => {  console.log("NAV",parseInt(NAV)); }, 5000);
 
-  setTimeout(() => {
-    console.log("effective NAV", "0.00316890075");
-  }, 5000);
+  // setTimeout(() => {
+  //   console.log("effective NAV", "0.00316890075");
+  // }, 5000);
   // let a = mint(".0000000000003");
 
 
@@ -281,7 +353,7 @@ const mint = async (crvAmount) => {
       (new BN(cvxToBeMinted) / new BN((10 ** 18).toString())) *
       (new BN(cvxUSD) / new BN((10 ** 18).toString()));
     // console.log("type of mint nav", typeof NAV_mint);
-     console.log("mint nav", NAV_mint);
+    //  console.log("mint nav", NAV_mint);
     return NAV_mint;
 
     // console.log("NAVofCVXmintedd=", NAVofCVXmintedd.toString())

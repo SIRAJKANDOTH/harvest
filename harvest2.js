@@ -18,11 +18,11 @@ function from6(n) {
 }
 const GasCheck = async () => {
     try {
-      let convexCrvABI=require('./build/contracts/ConvexCRV.json').abi
-      let netId=await web3.eth.net.getId()
-      // 02console.log("netId==",netId)
-      //let convexCrvData=convexCrvABI.networks[netId]
-        const converCrv= new web3.eth.Contract(convexCrvABI,"0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD");
+      // let convexCrvABI=require('./build/contracts/ConvexCRV.json').abi
+      // let netId=await web3.eth.net.getId()
+      // // 02console.log("netId==",netId)
+      // //let convexCrvData=convexCrvABI.networks[netId]
+      //   const converCrv= new web3.eth.Contract(convexCrvABI,"0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD");
         const enc= await web3.eth.abi.encodeFunctionSignature({
           name: 'harvest',
           type: 'function',
@@ -34,7 +34,7 @@ const GasCheck = async () => {
       // console.log("encoded enc ",enc)
  
       estimatedgas=await web3.eth.estimateGas({
-          to: "0x320f41a905D2cd4Dc0FbC19bEb78e809A4cc43AD",
+          to: "0xC9Ad669B000888f813499a18a7aEC412Da85B034",
           data: enc
       });
       // console.log("estimated gas is",estimatedgas);    
