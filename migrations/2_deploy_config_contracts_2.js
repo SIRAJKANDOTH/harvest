@@ -4,6 +4,7 @@ const ConvexCRVMinter = artifacts.require("./strategies/ConvexSingleAsset/Convex
 
 module.exports = async (deployer, network, accounts) => {
     const apContract = await APContract.deployed();
+    console.log("ap contract address boom",apContract.addres);
 
     //Deploy Single Asset Convex CRV 
     await deployer.deploy(ConvexCRV,
