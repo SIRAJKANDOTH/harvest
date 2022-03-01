@@ -4,25 +4,25 @@ const ConvexCRVMinter = artifacts.require("./strategies/ConvexSingleAsset/Convex
 
 module.exports = async (deployer, network, accounts) => {
     const apContract = await APContract.deployed();
-    console.log("ap contract address boom",apContract.addres);
+    
 
     //Deploy Single Asset Convex CRV 
-    await deployer.deploy(ConvexCRV,
-        "USDN CVX Strategy",
-        "USDN-CVX",
-        apContract.address,
-        "13",
-        "0x674C6Ad92Fd080e4004b2312b45f796a192D27a0"
-    );
+    // await deployer.deploy(ConvexCRV,
+    //     "USDN CVX Strategy",
+    //     "USDN-CVX",
+    //     apContract.address,
+    //     "13",
+    //     "0x674C6Ad92Fd080e4004b2312b45f796a192D27a0"
+    // );
 
-    const cvxUSDN = await ConvexCRV.deployed()
-    await deployer.deploy(ConvexCRVMinter, apContract.address, cvxUSDN.address)
+    // const cvxUSDN = await ConvexCRV.deployed()
+    await deployer.deploy(ConvexCRVMinter, apContract.address, "0x0C40e644904972Fa6e3E273865ac6AaF483d777e")
 
     const convexCRVMinter = await ConvexCRVMinter.deployed()
 
     await apContract.addStrategy(
         "CVX Strategy",
-        cvxUSDN.address,
+        "0x0C40e644904972Fa6e3E273865ac6AaF483d777e",
         [
             "0xF403C135812408BFbE8713b5A23a04b3D48AAE31",
         ],
@@ -31,8 +31,8 @@ module.exports = async (deployer, network, accounts) => {
         accounts[0],
         "0"
     );
-    console.log(`CVX USDN :- ${cvxUSDN.address}`);
-    console.log(`CVX USDN Minter :- ${convexCRVMinter.address}`);
+    // console.log(`CVX USDN :- ${cvxUSDN.address}`);
+    // console.log(`CVX USDN Minter :- ${convexCRVMinter.address}`);
     
 };
 

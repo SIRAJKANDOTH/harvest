@@ -232,7 +232,7 @@ contract YieldsterVault is VaultStorage {
     {
         _isStrategyManager();
         IAPContract(APContract).setVaultActiveStrategy(_activeVaultStrategy);
-        IStrategy(_activeVaultStrategy).registerSafe();
+         IStrategy(_activeVaultStrategy).registerSafe();
     }
 
     /// @dev Function to deactivate a strategy in the vault.

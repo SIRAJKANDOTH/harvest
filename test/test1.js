@@ -3,10 +3,11 @@ const ERC20 = artifacts.require("IERC20")
 const APContract = artifacts.require("./aps/APContract.sol");
 const ProxyFactory = artifacts.require("./proxies/YieldsterVaultProxyFactory.sol");
 const YieldsterVault = artifacts.require("./YieldsterVault.sol");
-const cvxupdated=artifacts.require("./ConvexCRV.json").abi  
+const cvxupdated=require("../contracts/ConvexCRV.json")  
 const ConvexSingleAssetStrategy = artifacts.require("./strategies/ConvexSingleAsset/ConvexCRV.sol");
 const ConvexSingleAssetStrategyMinter = artifacts.require("./strategies/ConvexSingleAsset/ConvexCRVMinter.sol");
-let strategyAdd_updated_cvx="0xd20ABa2A88CF52da1f8DD4F1F051Af2dA6B3C820";
+let strategyAdd_updated_cvx="0x0C40e644904972Fa6e3E273865ac6AaF483d777e";
+var Contract = require('web3-eth-contract');
 
 function to18(n) {
     return web3.utils.toWei(n, "ether");
@@ -26,13 +27,17 @@ contract("Strategy Deposit", function (accounts) {
     let uCrvUSDPToken, uCrvUSDNToken, uCrvBUSDToken, uCrvALUSDToken, uCrvLUSDToken, uCrvFRAXToken;
     let crvUSDP, crvUSDN, crvALUSD, crvLUSD, crvBUSD, crvFRAX, crv3;
     let proxyFactory, apContract;
-    let yieldsterVaultMasterCopy;
+    let yieldsterVaultMasterCopy,contract;
     let singleAsset3Crv, singleAsset3CrvMinter,priceModule;
 
     beforeEach(async function () {
 
         //---------------------------------CREATING-TOKENS-OBJECT-------------------------------------------//
-        var contract = new Contract(cvxupdated, strategyAdd_updated_cvx);
+         contract = new Contract(cvxupdated.abi, strategyAdd_updated_cvx);
+         console.log("contract is this",contract);
+         console.log("contract is this",contract._address);
+
+         
         console.log("contract instance created");
         dai = await ERC20.at("0x6B175474E89094C44Da98b954EedeAC495271d0F")
         usdt = await ERC20.at("0xdac17f958d2ee523a2206206994597c13d831ec7")
@@ -63,7 +68,7 @@ contract("Strategy Deposit", function (accounts) {
 
 
         apContract = await APContract.deployed();
-        singleAsset3Crv = await ConvexSingleAssetStrategy.deployed()
+        // singleAsset3Crv = await ConvexSingleAssetStrategy.deployed()
         singleAsset3CrvMinter = await ConvexSingleAssetStrategyMinter.deployed()
         yieldsterVaultMasterCopy = await YieldsterVault.deployed()
         proxyFactory = await ProxyFactory.deployed()
@@ -110,11 +115,11 @@ contract("Strategy Deposit", function (accounts) {
             [],
             [],
         );
-        let inst=await ConvexCRV.deployed.at("0xd20ABa2A88CF52da1f8DD4F1F051Af2dA6B3C820")
-        log("inst",inst.address)
+        
+        
         console.log("set vault strategy and protocol")
         await testVault.setVaultStrategyAndProtocol(
-            strategyAdd_updated_cvx,
+           contract._address,
             [
                 "0xF403C135812408BFbE8713b5A23a04b3D48AAE31",
             ],
@@ -135,7 +140,7 @@ contract("Strategy Deposit", function (accounts) {
 
 
         console.log("Activating vault strategy ", strategyAdd_updated_cvx)
-        await testVault.setVaultActiveStrategy(strategyAdd_updated_cvx)
+        await testVault.setVaultActiveStrategy("0x0C40e644904972Fa6e3E273865ac6AaF483d777e")
         console.log("Vault active strategies", (await testVault.getVaultActiveStrategy()))
 
 
@@ -183,45 +188,45 @@ contract("Strategy Deposit", function (accounts) {
         // console.log("usdn in User =", from18((await usdn.balanceOf(accounts[1])).toString()))
         console.log("usdn in Vault =", from18((await usdn.balanceOf(testVault.address)).toString()))
         
-        //Deposit into strategy
-         console.log("singleAsset3Crv NAV =", from18((await singleAsset3Crv.getStrategyNAV()).toString()))
-         console.log("singleAsset3Crv token value =", from18((await singleAsset3Crv.tokenValueInUSD()).toString()))
-         console.log("singleAsset3Crv token vault balance =", from18((await singleAsset3Crv.balanceOf(testVault.address)).toString()))
-         //console.log("singleAsset3Crv crvFRAX tokens  =", from18((await crvFRAX.balanceOf(singleAsset3Crv.address)).toString()))
-         console.log("===================STRATEGY DEPOSIT=====================")
+    //     //Deposit into strategy
+    //      console.log("singleAsset3Crv NAV =", from18((await singleAsset3Crv.getStrategyNAV()).toString()))
+    //      console.log("singleAsset3Crv token value =", from18((await singleAsset3Crv.tokenValueInUSD()).toString()))
+    //      console.log("singleAsset3Crv token vault balance =", from18((await singleAsset3Crv.balanceOf(testVault.address)).toString()))
+    //      //console.log("singleAsset3Crv crvFRAX tokens  =", from18((await crvFRAX.balanceOf(singleAsset3Crv.address)).toString()))
+    //      console.log("===================STRATEGY DEPOSIT=====================")
           let earnInstruction =
               web3.eth.abi.encodeParameters(['address[3]', 'uint256[3]', 'uint256', 'address[]', 'uint256[]'], [["0x6B175474E89094C44Da98b954EedeAC495271d0F", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "0xdac17f958d2ee523a2206206994597c13d831ec7"], [`${to18("0")}`, `${to6("100")}`, `${to6("0")}`], "1", ["0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"] ,[`${to18("100")}`]]);
-            //   web3.eth.abi.encodeParameters(['address[3]', 'uint256[3]', 'uint256', 'address[]', 'uint256[]'], [["0x6B175474E89094C44Da98b954EedeAC495271d0F", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "0xdac17f958d2ee523a2206206994597c13d831ec7"], [`${to18("0")}`, `${to6("100")}`, `${to6("100")}`], "1", ["0x4f3E8F405CF5aFC05D68142F3783bDfE13811522","0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490","0x674C6Ad92Fd080e4004b2312b45f796a192D27a0"] ,[`${to18("100")}`,`${to18("100")}`,`${to18("100")}`]]);           
-             console.log("parmaeters encoded");
-     await singleAsset3CrvMinter.earn(testVault.address, [usdc.address, usdt.address,crv3.address], [to6("100"), to6("0"),to18("100")], earnInstruction)
-     console.log("first earn called");
+    //         //   web3.eth.abi.encodeParameters(['address[3]', 'uint256[3]', 'uint256', 'address[]', 'uint256[]'], [["0x6B175474E89094C44Da98b954EedeAC495271d0F", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "0xdac17f958d2ee523a2206206994597c13d831ec7"], [`${to18("0")}`, `${to6("100")}`, `${to6("100")}`], "1", ["0x4f3E8F405CF5aFC05D68142F3783bDfE13811522","0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490","0x674C6Ad92Fd080e4004b2312b45f796a192D27a0"] ,[`${to18("100")}`,`${to18("100")}`,`${to18("100")}`]]);           
+    //          console.log("parmaeters encoded");
+    //  await singleAsset3CrvMinter.earn(testVault.address, [usdc.address, usdt.address,crv3.address], [to6("100"), to6("0"),to18("100")], earnInstruction)
+    //  console.log("first earn called");
 
     // console.log("shares==",(await singleAsset3Crv._sharesnew()).toString())
 
     // console.log("---------the amount of reward received----------------------")
     // console.log("reward is",(await singleAsset3Crv.calculateReward()).toString());
 
-      await singleAsset3CrvMinter.earn(testVault.address, [usdc.address, usdt.address,crv3.address], [to6("100"), to6("0"),to18("100")], earnInstruction)
-      console.log("second earn called");
-    const enc= await web3.eth.abi.encodeFunctionSignature({
-        name: 'harvest',
-        type: 'function',
-        inputs: [{
+      //  await singleAsset3CrvMinter.earn(testVault.address, [usdc.address, usdt.address,crv3.address], [to6("100"), to6("0"),to18("100")], earnInstruction)
+      // console.log("second earn called");
+    // const enc= await web3.eth.abi.encodeFunctionSignature({
+    //     name: 'harvest',
+    //     type: 'function',
+    //     inputs: [{
     
-        }]
-    })
+    //     }]
+    // })
 
-     console.log("encoded enc ",enc)
+    //  console.log("encoded enc ",enc)
 
     // console.log( "estimated gas is ",await web3.eth.estimateGas({
     //     to: singleAsset3Crv.address, 
     //     data: enc
     // }));
     //find out strategy nav
-    console.log("===================STRATEGY DEPOSIT DONE :      STRATEGY INFO=====================");
-    console.log("checking strategy nav");
-    console.log(strategyAdd_updated_cvx);
-    // console.log("singleAsset3Crv NAV =", from18((await singleAsset3Crv.getStrategyNAV()).toString()))
+    // console.log("===================STRATEGY DEPOSIT DONE :      STRATEGY INFO=====================");
+    // console.log("checking strategy nav");
+    // console.log(strategyAdd_updated_cvx);
+    // // console.log("singleAsset3Crv NAV =", from18((await singleAsset3Crv.getStrategyNAV()).toString()))
     // console.log("singleAsset3Crv token value =", from18((await singleAsset3Crv.tokenValueInUSD()).toString()))
     // console.log("singleAsset3Crv token vault balance =", from18((await singleAsset3Crv.balanceOf(testVault.address)).toString()))
 
@@ -232,7 +237,7 @@ contract("Strategy Deposit", function (accounts) {
     //  console.log("cvxcrv balance before harvesting==",(await cvxcrv.balanceOf(singleAsset3Crv.address)).toString())
     //  console.log("usdt balance before harvesting==",(await usdt.balanceOf(singleAsset3Crv.address)).toString())
     //  console.log("crvusdn balance before harvesting==",(await uCrvUSDNToken.balanceOf(singleAsset3Crv.address)).toString())
-     console.log("----------------harvesting the reward--------------------------")
+    //  console.log("----------------harvesting the reward--------------------------")
 
     //  await singleAsset3Crv.harvest();
 

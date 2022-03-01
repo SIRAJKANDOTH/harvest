@@ -6,6 +6,10 @@ const YieldsterVault = artifacts.require("./YieldsterVault.sol");
 const ProxyFactory = artifacts.require("./proxies/YieldsterVaultProxyFactory.sol");
 const SafeUtils = artifacts.require("./safeUtils/SafeUtils.sol");
 const PriceModule = artifacts.require("./price/PriceModule.sol");
+const cvxupdated=require("../contracts/ConvexCRV.json")  
+var Contract = require('web3-eth-contract');
+let strategyAdd_updated_cvx="0x0C40e644904972Fa6e3E273865ac6AaF483d777e";
+
 
 
 module.exports = async (deployer, network, accounts) => {
@@ -29,6 +33,11 @@ module.exports = async (deployer, network, accounts) => {
     );
 
     const apContract = await APContract.deployed();
+    const contract = new Contract(cvxupdated.abi, strategyAdd_updated_cvx);
+    await contract.methods.setAPContract(apContract.address);
+
+    console.log("set ap contract done")
+    
 
 
     await deployer.deploy(StockDeposit);

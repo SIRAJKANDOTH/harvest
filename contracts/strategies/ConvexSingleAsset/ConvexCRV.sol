@@ -86,7 +86,7 @@ contract ConvexCRV is ERC20, ERC20Detailed {
 
     /// @dev Function to subscribe a new vault to the strategy.
     function registerSafe() external {
-        require(IAPContract(APContract).isVault(msg.sender));
+         require(IAPContract(APContract).isVault(msg.sender));
         isRegistered[msg.sender] = true;
     }
 
