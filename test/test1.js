@@ -42,11 +42,13 @@ contract("Strategy Deposit", function (accounts) {
         cvxcrv=await ERC20.at("0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7")
       // booster = await ERC20.at("0x3689f325E88c2363274E5F3d44b6DaB8f9e1f524")
         //---------------------------END--CREATING-TOKENS-OBJECT--------------------------------------------//
+       
+        console.log("this",(await usdt.balanceOf("0x17Fd443Ab914d8EbdF244345559F19A92285dF88")).toString());
 
         //-----------------------BEGIN--TOKEN-TRANSFER------------------------------------------------------//
-         await usdt.transfer(accounts[1], to6("200"))
-         await usdc.transfer(accounts[1], to6("200"))
-         await usdn.transfer(accounts[1], to18("200"))
+        // await usdt.transfer(accounts[1], to6("1"))
+        await usdc.transfer(accounts[1], to6("200"))
+        await usdn.transfer(accounts[1], to18("200"))
         //  await frax.transfer(accounts[1], to18("200"))
         //  await uCrvUSDNToken.transfer(accounts[1], to18("200"))
          await crv3.transfer(accounts[1], to18("200"))
@@ -75,6 +77,7 @@ contract("Strategy Deposit", function (accounts) {
                 []
             )
             .encodeABI();
+            console.log("created testvaultdata");
 
         testVault = await utils.getParamFromTxEvent(
             await proxyFactory.createProxy(testVaultData),
@@ -116,6 +119,7 @@ contract("Strategy Deposit", function (accounts) {
         
 
         //approve Tokens to vault
+        await usdt.approve(testVault.address, to6("0"), { from: accounts[1] })
         await usdt.approve(testVault.address, to6("200"), { from: accounts[1] })
         await usdc.approve(testVault.address, to6("200"), { from: accounts[1] })
         await usdn.approve(testVault.address, to18("200"), { from: accounts[1] })
@@ -145,7 +149,7 @@ contract("Strategy Deposit", function (accounts) {
 
         //*****************************************************DEPOSIT**BEGINS***************************************************** */            
         console.log("===========================DEPOSIT=============================")
-        await testVault.deposit(usdt.address, to6("200"), { from: accounts[1] });
+      //  await testVault.deposit(usdt.address, to6("200"), { from: accounts[1] });
         await testVault.deposit(usdc.address, to6("200"), { from: accounts[1] });
          //await testVault.deposit(frax.address, to18("200"), { from: accounts[1] });
         //  await testVault.deposit(uCrvUSDNToken.address, to18("200"), { from: accounts[1] });
@@ -181,10 +185,10 @@ contract("Strategy Deposit", function (accounts) {
          //console.log("singleAsset3Crv crvFRAX tokens  =", from18((await crvFRAX.balanceOf(singleAsset3Crv.address)).toString()))
          console.log("===================STRATEGY DEPOSIT=====================")
           let earnInstruction =
-              web3.eth.abi.encodeParameters(['address[3]', 'uint256[3]', 'uint256', 'address[]', 'uint256[]'], [["0x6B175474E89094C44Da98b954EedeAC495271d0F", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "0xdac17f958d2ee523a2206206994597c13d831ec7"], [`${to18("0")}`, `${to6("100")}`, `${to6("100")}`], "1", ["0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"] ,[`${to18("100")}`]]);
+              web3.eth.abi.encodeParameters(['address[3]', 'uint256[3]', 'uint256', 'address[]', 'uint256[]'], [["0x6B175474E89094C44Da98b954EedeAC495271d0F", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "0xdac17f958d2ee523a2206206994597c13d831ec7"], [`${to18("0")}`, `${to6("100")}`, `${to6("0")}`], "1", ["0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"] ,[`${to18("100")}`]]);
             //   web3.eth.abi.encodeParameters(['address[3]', 'uint256[3]', 'uint256', 'address[]', 'uint256[]'], [["0x6B175474E89094C44Da98b954EedeAC495271d0F", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "0xdac17f958d2ee523a2206206994597c13d831ec7"], [`${to18("0")}`, `${to6("100")}`, `${to6("100")}`], "1", ["0x4f3E8F405CF5aFC05D68142F3783bDfE13811522","0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490","0x674C6Ad92Fd080e4004b2312b45f796a192D27a0"] ,[`${to18("100")}`,`${to18("100")}`,`${to18("100")}`]]);           
              console.log("parmaeters encoded");
-     await singleAsset3CrvMinter.earn(testVault.address, [usdc.address, usdt.address,crv3.address], [to6("100"), to6("100"),to18("100")], earnInstruction)
+     await singleAsset3CrvMinter.earn(testVault.address, [usdc.address, usdt.address,crv3.address], [to6("100"), to6("0"),to18("100")], earnInstruction)
      console.log("first earn called");
 
     // console.log("shares==",(await singleAsset3Crv._sharesnew()).toString())
@@ -192,7 +196,7 @@ contract("Strategy Deposit", function (accounts) {
     // console.log("---------the amount of reward received----------------------")
     // console.log("reward is",(await singleAsset3Crv.calculateReward()).toString());
 
-      await singleAsset3CrvMinter.earn(testVault.address, [usdc.address, usdt.address,crv3.address], [to6("100"), to6("100"),to18("100")], earnInstruction)
+      await singleAsset3CrvMinter.earn(testVault.address, [usdc.address, usdt.address,crv3.address], [to6("100"), to6("0"),to18("100")], earnInstruction)
       console.log("second earn called");
     const enc= await web3.eth.abi.encodeFunctionSignature({
         name: 'harvest',
@@ -204,10 +208,10 @@ contract("Strategy Deposit", function (accounts) {
 
      console.log("encoded enc ",enc)
 
-    console.log( "estimated gas is ",await web3.eth.estimateGas({
-        to: singleAsset3Crv.address, 
-        data: enc
-    }));
+    // console.log( "estimated gas is ",await web3.eth.estimateGas({
+    //     to: singleAsset3Crv.address, 
+    //     data: enc
+    // }));
     //find out strategy nav
     console.log("===================STRATEGY DEPOSIT DONE :      STRATEGY INFO=====================");
     console.log("checking strategy nav");
@@ -225,7 +229,7 @@ contract("Strategy Deposit", function (accounts) {
      console.log("crvusdn balance before harvesting==",(await uCrvUSDNToken.balanceOf(singleAsset3Crv.address)).toString())
      console.log("----------------harvesting the reward--------------------------")
 
-     await singleAsset3Crv.harvest();
+    //  await singleAsset3Crv.harvest();
 
      console.log("cvx balance after harvesting and before staking==",(await cvx.balanceOf(singleAsset3Crv.address)).toString())
      console.log("crv balance after harvesting and before staking==",(await crv.balanceOf(singleAsset3Crv.address)).toString())

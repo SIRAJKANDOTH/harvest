@@ -44,7 +44,7 @@ let apContract = new web3.eth.Contract(
   apContractABI,
   "0x984F84520495f499Fa67E3316CA8CfffBB87f54E"
 );
-let strategyAddress = "0xC6eF976681819e448bf0CE16C962e91d303b4777";
+ let strategyAddress = "0x21c45f8A4Bff6eD1afb264C6017B6Ec48BaED58F";
 let convexCrv = new web3.eth.Contract(convexCrvABI, strategyAddress);
 let convexRewardContract = new web3.eth.Contract(
   IRewardsABI,
@@ -99,7 +99,6 @@ const start = async () => {
 
     // TODO
     // MINT LOGIC
-    
     cvx_basepool_nav=await mint(crv_reward);
     
     console.log("basepool cvx nav",cvx_basepool_nav);
@@ -149,6 +148,7 @@ const start = async () => {
       (new BN(CRV) / new BN((10 ** 18).toString())) *
       (new BN(crv_USD) / new BN((10 ** 18).toString()));
     console.log("nav 3", NAV3.toString());
+
     console.log("nav 4", NAV4.toString());
     // let Nav = new BN(new BN(NAV3).add(new BN(NAV4)));
     //  console.log("actural NAV is",Nav.toString())
@@ -162,11 +162,11 @@ const start = async () => {
     console.log("NavEffective",NavEffective)
   };
 
-  CalcBasepoolReward();
-  CalcCVXRewards();
-  CalcCVXcrv();
+//  CalcBasepoolReward();
+  // CalcCVXRewards();
+  // CalcCVXcrv();
   // calcNav();
-   setUSDvalues();
+  //  setUSDvalues();
 
   setTimeout(() => {
     console.log("-------------basepool Rewards--------------");
@@ -174,6 +174,7 @@ const start = async () => {
   setTimeout(() => {
     console.log("CRV", crv_reward);
   }, 2000);
+
   setTimeout(() => {
     console.log("----------convex reward contract---------");
   }, 2000);
@@ -189,6 +190,8 @@ const start = async () => {
   setTimeout(() => {
     console.log("3crv earned", CRV3);
   }, 4000);
+  console.log("fuckkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
+
   setTimeout(() => {
     console.log(typeof(NAV1),typeof(NAV2),typeof(NAV3),typeof(NAV4),typeof(cvx_basepool_nav),typeof(cvx_cvxcrv_nav))
 
@@ -200,6 +203,7 @@ const start = async () => {
   // }, 25000);
   setTimeout(() => {
     console.log("type of unresolved",typeof(cvx_basepol_nav),typeof(cvx_cvxcrv_nav))
+
 
   }, 25000);
   //  NAV.toString();
@@ -273,7 +277,7 @@ const mint = async (crvAmount) => {
     let cvxUSD = await apContract.methods.getUSDPrice(cvx).call();
     // console.log("cvxUSD=", cvxUSD);
 
-    NAVofCVXminted = new BN(
+   let NAVofCVXminted = new BN(
       new BN(cvxToBeMinted.toString()).mul(new BN(cvxUSD.toString()))
     );
     let NAVofCVXmintedd = NAVofCVXminted.div(new BN((10 ** 18).toString()));
