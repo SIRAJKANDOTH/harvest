@@ -1,6 +1,7 @@
 const APContract = artifacts.require("./aps/APContract.sol");
 const ConvexCRV = artifacts.require("./strategies/ConvexSingleAsset/ConvexCRV.sol");
 const ConvexCRVMinter = artifacts.require("./strategies/ConvexSingleAsset/ConvexCRVMinter.sol");
+let stratedy_addr="0xC394EdCAB60D3d9e11a260a1BccaaB841Aeb5E4A"
 
 module.exports = async (deployer, network, accounts) => {
     const apContract = await APContract.deployed();
@@ -16,13 +17,13 @@ module.exports = async (deployer, network, accounts) => {
     // );
 
     // const cvxUSDN = await ConvexCRV.deployed()
-    await deployer.deploy(ConvexCRVMinter, apContract.address, "0x0C40e644904972Fa6e3E273865ac6AaF483d777e")
+    await deployer.deploy(ConvexCRVMinter, apContract.address, stratedy_addr)
 
     const convexCRVMinter = await ConvexCRVMinter.deployed()
 
     await apContract.addStrategy(
         "CVX Strategy",
-        "0x0C40e644904972Fa6e3E273865ac6AaF483d777e",
+        stratedy_addr,
         [
             "0xF403C135812408BFbE8713b5A23a04b3D48AAE31",
         ],

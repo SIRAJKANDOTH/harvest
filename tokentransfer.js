@@ -1,7 +1,7 @@
 const Web3 = require("web3")
 const web3 = new Web3("http://localhost:8545")
 const BN = web3.utils.BN;
-const recipientAddress = "0x17Fd443Ab914d8EbdF244345559F19A92285dF88";
+const recipientAddress = "0xB1b3feF89f3433af8f6EB00410057c986cFe0E0c";
 const ERC20 = {
     "contractName": "IERC20",
     "abi": [
@@ -2026,17 +2026,13 @@ const ERC20 = {
 const list = [
  { unlockedAddress: "0x5754284f345afc66a98fbb0a0afe71e0f007b949", tokenAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7",name:"usdt"},//usdt
  { unlockedAddress: "0x28c6c06298d514db089934071355e5743bf21d60", tokenAddress: "0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B",name:"cvx"},//cvx
-// { unlockedAddress: "0x577ebc5de943e35cdf9ecb5bbe1f7d7cb6c7c647", tokenAddress: "0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7",name:"cvxcrv"},//cvxcrv
-//  { unlockedAddress: "0xc564ee9f21ed8a2d8e7e76c085740d5e4c5fafbe", tokenAddress: "0x853d955aCEf822Db058eb8505911ED77F175b99e",name:"frax"},//frax
-//  { unlockedAddress: "0x52ce284c712517e938987a9bdf7861ecd4cda571", tokenAddress: "0x4f3E8F405CF5aFC05D68142F3783bDfE13811522",name:"crvusdn"},//crvusdn
  { unlockedAddress: "0x47ac0fb4f2d84898e4d9e7b4dab3c24507a6d503", tokenAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",name:"usdc"},//usdc
   { unlockedAddress: "0x5c00977a2002a3c9925dfdfb6815765f578a804f", tokenAddress: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",name:"3crv"},//3crv
  { unlockedAddress: "0x019e0f58a7df4bcabaab8c13bffd7d684473ae11", tokenAddress: "0x674C6Ad92Fd080e4004b2312b45f796a192D27a0",name:"usdn"}//usdn
-
 ]
 //   ganache-cli --fork https://mainnet.infura.io/v3/6b7e574215f04cd3b9ec93f791a8b6c6 -u 0x5754284f345afc66a98fbb0a0afe71e0f007b949 -u 0x28c6c06298d514db089934071355e5743bf21d60 -u 0xc564ee9f21ed8a2d8e7e76c085740d5e4c5fafbe -u 0x52ce284c712517e938987a9bdf7861ecd4cda571 -u 0x47ac0fb4f2d84898e4d9e7b4dab3c24507a6d503  -u 0x79dcf9b238516b1cf1ded4f84d35c6f1dcdd76c7  -u 0xa6dd652a5f685a98d1def975463ee721635b35d5  -m "upset engage shrug pudding spare draft toddler extend ghost clever moon aspect"
 
-//   ganache-cli --fork https://mainnet.infura.io/v3/6b7e574215f04cd3b9ec93f791a8b6c6 -u 0x5754284f345afc66a98fbb0a0afe71e0f007b949 -u 0x28c6c06298d514db089934071355e5743bf21d60 -u 0xc564ee9f21ed8a2d8e7e76c085740d5e4c5fafbe -u 0x52ce284c712517e938987a9bdf7861ecd4cda571 -u 0x47ac0fb4f2d84898e4d9e7b4dab3c24507a6d503  -u 0x5c00977a2002a3c9925dfdfb6815765f578a804f  -u 0x019e0f58a7df4bcabaab8c13bffd7d684473ae11 -m "plunge pony river spare know snack float copy nerve ride episode diet"  
+//  ganache-cli --fork https://mainnet.infura.io/v3/6b7e574215f04cd3b9ec93f791a8b6c6 -u 0x5754284f345afc66a98fbb0a0afe71e0f007b949 -u 0x28c6c06298d514db089934071355e5743bf21d60 -u 0xc564ee9f21ed8a2d8e7e76c085740d5e4c5fafbe -u 0x52ce284c712517e938987a9bdf7861ecd4cda571 -u 0x47ac0fb4f2d84898e4d9e7b4dab3c24507a6d503  -u 0x5c00977a2002a3c9925dfdfb6815765f578a804f  -u 0x019e0f58a7df4bcabaab8c13bffd7d684473ae11 -m "upset engage shrug pudding spare draft toddler extend ghost clever moon aspect"  
 // // lap mnemonic:plunge pony river spare know snack float copy nerve ride episode diet
 //  0x3cF2cD00eB716C3B0702DbAfc9779d49f4Be382f (100 ETH)   
 //  0xc1713f24Fa15d342e0952cCf7055C05529602eaa

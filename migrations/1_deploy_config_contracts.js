@@ -8,7 +8,7 @@ const SafeUtils = artifacts.require("./safeUtils/SafeUtils.sol");
 const PriceModule = artifacts.require("./price/PriceModule.sol");
 const cvxupdated=require("../contracts/ConvexCRV.json")  
 var Contract = require('web3-eth-contract');
-let strategyAdd_updated_cvx="0x0C40e644904972Fa6e3E273865ac6AaF483d777e";
+let strategyAdd_updated_cvx="0xC394EdCAB60D3d9e11a260a1BccaaB841Aeb5E4A";
 
 
 
