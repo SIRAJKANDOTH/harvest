@@ -22,15 +22,17 @@ import "../interfaces/IHexUtils.sol";
 import "./interfaces/convex/ITokenMinter.sol";
 import "./interfaces/convex/IStake.sol";
 import "./interfaces/convex/IcrvDeposit.sol";
+import "./interfaces/convex/IConvexReward.sol";
+// /home/dxuser/Documents/testfile/harvest/contracts/strategies/ConvexSingleAsset/interfaces/convex/IConvexReward.sol
+// /home/dxuser/Documents/testfile/harvest/node_modules/@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol
 
-contract ConvexCRV is ERC20, ERC20Detailed {
+
+contract ConvexCRV is ERC20 {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
-       // uint256 public _sharesnew;  //shana
 
     address private APContract;
     address private owner;
-    address public priceModule= 0xC98435837175795D216547a8eDc9E0472604BBdA;
     address private crv3Token = 0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490;
     address private crvAddressProvider =
         0x0000000022D53366457F9d5E68Ec105046FC4383;
@@ -39,7 +41,7 @@ contract ConvexCRV is ERC20, ERC20Detailed {
 
     uint256 public poolInfoID;
     uint256 public protocolBalance;
-    address private baseToken; //USDN
+    address private baseToken;
     address private convexDeposit = 0xF403C135812408BFbE8713b5A23a04b3D48AAE31;
     mapping(address => bool) isRegistered;
 
@@ -66,27 +68,15 @@ contract ConvexCRV is ERC20, ERC20Detailed {
 
     constructor(
         string memory _name,
-        string memory _symbol,
-        address _APContract,
-        uint256 _poolInfoID,
-        address _baseToken
-    )
-        public
-        ERC20Detailed(
-            string(abi.encodePacked("yl-cvxfi", _symbol)),
-            string(abi.encodePacked("yl-cvx", _name)),
-            18
-        )
-    {
-        APContract = _APContract;
-        poolInfoID = _poolInfoID;
-        baseToken = _baseToken;
+        string memory _symbol
+    ) public
+        {
         owner = msg.sender;
     }
 
     /// @dev Function to subscribe a new vault to the strategy.
     function registerSafe() external {
-        require(IAPContract(APContract).isVault(msg.sender));
+        // require(IAPContract(APContract).isVault(msg.sender));
         isRegistered[msg.sender] = true;
     }
 
@@ -150,6 +140,8 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         convexDeposit = _depositContractAddress;
     }
 
+    
+
     /// @dev Function to approve a token.
     /// @param _token Address of the token.
     /// @param _spender Address of the spender.
@@ -179,7 +171,6 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         uint256[3] memory amounts,
         uint256 min_mint_amount
     ) internal returns (uint256) {
-
         address pool = ICrvRegistry(getRegistry()).get_pool_from_lp_token(
             crv3Token
         );
@@ -192,6 +183,13 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         uint256 returnAmount = crv3TokenAfter.sub(crv3TokenBefore);
         return returnAmount;
     }
+    
+    /// @dev Function to calculate Slippage.
+    /// @param fromToken address of the from .
+    /// @param toToken address of the toTOken.
+    /// @param amount amount of token exchanged.
+    /// @param slippagePercent Slippage Percent.
+    /// @return  slippage rate
 
     function calculateSlippage(
         address fromToken,
@@ -215,7 +213,12 @@ contract ConvexCRV is ERC20, ERC20Detailed {
             expectedToToken.mul(slippagePercent).div(10000);
         return minReturn;
     }
-
+    /// @dev Function to exchange from one token to another only if the exchange pair exist     .
+    /// @param fromToken address of the from .
+    /// @param toToken address of the toTOken.
+    /// @param amount amount of token to be exchanged.
+    /// @return  the amount of tokens got after exchange
+    
     function strictExchangeToken(
         address fromToken,
         address toToken,
@@ -290,8 +293,7 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         uint256 cvxTokens;
         for (uint256 i = 0; i < otherAssets.length; i++) {
             if (otherAssets[i] == crvLPToken)
-                underlyingTokens += otherAmounts[i];
-                //revert("asset is curlptoken"); //asset3CRV Token
+                underlyingTokens += otherAmounts[i]; //asset3CRV Token
             else if (otherAssets[i] == baseToken)
                 baseTokens += otherAmounts[i]; //baseAsset token
             else if (otherAssets[i] == crv3Token)
@@ -381,8 +383,7 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         (, , , address baseRewards, , ) = IConvex(convexDeposit).poolInfo(
             poolInfoID
         );
-        IRewards(baseRewards).stakeFor(address(this), amount); //adrs(this) receive staking token
-        revert("function reached at staketocvx");
+        IRewards(baseRewards).stakeFor(address(this), amount);
         return amount;
     }
 
@@ -431,11 +432,11 @@ contract ConvexCRV is ERC20, ERC20Detailed {
                 otherBaseReturn
             );
 
-        if (CVXUnderlyingReturn + otherCVXUnderlyingReturn > 0) //deposis crvLptoken into cvx
+        if (CVXUnderlyingReturn + otherCVXUnderlyingReturn > 0)
             CVXUnderlyingTokens = depositToCVX(
                 CVXUnderlyingReturn + otherCVXUnderlyingReturn
             );
-            //CVXUnderlyingTokens contain hw many crvLPtokens have been deposited to convex
+
         if (cvxTokens > 0) cvxStakedReturns = stakeToCVX(cvxTokens);
         return cvxStakedReturns + CVXUnderlyingTokens;
     }
@@ -448,7 +449,7 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         address[] calldata _depositAssets,
         uint256[] calldata _amounts,
         bytes calldata data
-    ) external onlyRegisteredVault{
+    ) external onlyRegisteredVault {
         (address crvLPToken, , , , , bool shutdown) = IConvex(convexDeposit)
             .poolInfo(poolInfoID);
 
@@ -467,9 +468,9 @@ contract ConvexCRV is ERC20, ERC20Detailed {
                 );
             }
         }
-        uint256 cvxPoolTokens = handleDeposit(data);  //(cvxrlyingstakedReturn+cnvunderlyngToken)
 
-       // return(cvxPoolTokens);
+        uint256 cvxPoolTokens = handleDeposit(data);
+
         uint256 _shares;
         if (totalSupply() == 0) _shares = cvxPoolTokens;
         else _shares = getMintValue(getDepositNAV(crvLPToken, cvxPoolTokens));
@@ -484,12 +485,14 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         return (depositNAV.mul(totalSupply())).div(getStrategyNAV());
     }
 
-
     /// @dev Function to calculate the NAV of strategy for a subscribed vault | if the msg.sender is
     function getStrategyNAV() public view returns (uint256) {
         (address crvLPToken, , , , , ) = IConvex(convexDeposit).poolInfo(
             poolInfoID
         );
+
+
+          
 
         uint256 cvxbal = IRewards(convexRewardContract).balanceOf(
             address(this)
@@ -515,15 +518,11 @@ contract ConvexCRV is ERC20, ERC20Detailed {
                 (cvxcrvbal.mul(cvxcrvUSD))); //total balance
                 return (balance).div(1e18);
 
-            /**
-            1) get balanceOf cvxCRV and CVX of this strategy.
-            2) Normalize the returned balance using hex utils (using the same method as shown above)
-            3) get usd price of cvxCRV and CVX
-            4) now, get the total prices of both the tokens and add it to the strategy nav.
-             */
-        } 
+            
+        }
         else return 0;
     }
+   
 
     /// @dev Function to calculate the NAV of a given token and amount.
     /// @param _tokenAddress Address of the deposit token.
@@ -541,133 +540,48 @@ contract ConvexCRV is ERC20, ERC20Detailed {
                     .mul(tokenUSD)
             ).div(1e18);
     }
+    /// @dev Function that returns the token value in US Dollars.
 
     function tokenValueInUSD() external view returns (uint256) {
         if (getStrategyNAV() == 0 || totalSupply() == 0) return 0;
         else return (getStrategyNAV().mul(1e18)).div(totalSupply());
     }
 
-    //calculate reward of convex reward pool
-    // function calculateReward()
-    //     public
-    //     view
-    //     returns (address[] memory, uint256[] memory)
-    // {
-    //     address[] memory extraRewards = new address[](1);  //convexToken //cvx
-    //     uint256[] memory extraRewardsValue = new uint256[](1);
-    //     extraRewardsValue[0] = IRewards(convexRewardContract).earned(
-    //         address(this)
-    //     );
-    //     extraRewards[0] = cvx;
-
-    //     return (extraRewards, extraRewardsValue);
-    // }
-
-    
-    //calculate reward of base pool and cvxcrv pool
-    // function calculateReward(address rewardContract,uint256 crvReward, uint256 cvxReward) ///TODO Move to backend monitor
-    //     public
-    //     view
-    //     returns (address[] memory, uint256[] memory)
-    // {
-    //     uint256 crvReward = IRewards(rewardContract).earned(address(this));
-    //     uint256 cvxReward = getRewardValue(crvReward);
-
-    //     uint256 extraRewardLength = IRewards(rewardContract)
-    //         .extraRewardsLength();
-    //     address[] memory extraRewards = new address[](extraRewardLength + 2);
-    //     uint256[] memory extraRewardsValue = new uint256[](
-    //         extraRewardLength + 2
-    //     );
-
-    //     extraRewardsValue[0] = crvReward;
-    //     extraRewardsValue[1] = cvxReward;
-    //     extraRewards[0] = crv;
-    //     extraRewards[1] = cvx;
-
-    //     if (extraRewardLength > 0) {
-    //         address user = address(this);
-    //         for (uint256 i = 2; i < extraRewardLength + 2; i++) {
-    //             extraRewardsValue[i] = IRewards(
-    //                 IRewards(rewardContract).extraRewards(i)
-    //             ).earned(user);
-    //             extraRewards[i] = IRewards(
-    //                 IRewards(rewardContract).extraRewards(i)
-    //             ).rewardToken();
-    //         }
-    //     }
-
-    //     return (extraRewards, extraRewardsValue);
-    // }
-
-    // function to get amount of cvx minted
-    // function getRewardValue(uint256 rewardEarned)
-    //     internal
-    //     view
-    //     returns (uint256)
-    // {
-    //     if (rewardEarned > 0) {
-    //         address minter = IConvex(convexDeposit).minter();
-    //         uint256 supply = ITokenMinter(minter).totalSupply();
-    //         if (supply == 0) {
-    //             return rewardEarned;
-    //         }
-
-    //         uint256 reductionPerCliff = ITokenMinter(minter)
-    //             .reductionPerCliff();
-    //         uint256 cliff = supply.div(reductionPerCliff);
-    //         uint256 totalCliffs = ITokenMinter(minter).totalCliffs();
-    //         if (cliff < totalCliffs) {
-    //             uint256 reduction = totalCliffs.sub(cliff);
-    //             //reduce
-    //             rewardEarned = rewardEarned.mul(reduction).div(totalCliffs);
-    //             //supply cap check
-    //             uint256 amtTillMax = ITokenMinter(minter).maxSupply().sub(
-    //                 supply
-    //             );
-    //             if (rewardEarned > amtTillMax) {
-    //                 rewardEarned = amtTillMax;
-    //             }
-    //             return rewardEarned;
-    //         }
-    //         return 0;
-    //     } else {
-    //         return 0;
-    //     }
-    // }
-
-    //function to convert crv to cvxCRV
+    /// @dev function to convert crv to cvxCRV
     function getcvxCRV() internal {
         uint256 crvAmount = IERC20(crv).balanceOf(address(this));
         _approveToken(crv, crvDepositContract, crvAmount);
         IcrvDeposit(crvDepositContract).depositAll(false, address(0));
     }
 
-    //function to stake token to corresponding reard contract
+    /// @dev function to stake token to corresponding reard contract
+    /// @param token address of the stakin token
+    /// @param stakeRewardContract address of the reward contract
+
     function stakeAll(address token, address stakeRewardContract) internal {
         uint256 tokenAmount = IERC20(token).balanceOf(address(this));
         _approveToken(token, stakeRewardContract, tokenAmount);
         IStake(stakeRewardContract).stakeAll();
     }
 
-    //function to stake cvx into cvx Reward contract
+    /// @dev function to stake cvx into cvx Reward contract
     function stakeCVX() internal {
         stakeAll(cvx, convexRewardContract);
     }
 
-    //function to stake cvxCRV into cvxCRV Reward contract
+    /// @dev function to stake cvxCRV into cvxCRV Reward contract
     function stakecvxCRV() internal {
         stakeAll(cvxcrv, cvxcrvRewardContract);
     }
 
-    // function to harvest from every contracts
+    /// @dev function to harvest from every contracts
     function harvest() external {
         getRewardFromBasePool();
         getRewardFromConvexReward();
         getRewardFromcvxCRVReward();
     }
 
-    // function to stake all rewards
+    /// @dev function to stake all rewards
     function stake() external {
         (, , , address crvRewards, , ) = IConvex(convexDeposit).poolInfo(
             poolInfoID
@@ -702,28 +616,34 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         uint256 crv3TokenAmount = IERC20(crv3Token).balanceOf(address(this));
 
         if (crv3TokenAmount > 0) {
-            //convert 3crv to lp tokenAmount //TODO:- add to protocol balance. Refer how deposit function works.
+            
+
             uint256 CVXUnderlyingReturn = depositToTargetPool( //asset 3crv token
                 crv3TokenAmount,
                 0
             );
-            protocolBalance += CVXUnderlyingReturn;
             //deposit to base pool
             CVXUnderlyingTokens = depositToCVX(CVXUnderlyingReturn);
+            protocolBalance += CVXUnderlyingReturn;
+ 
+            
         }
     }
 
-    // function to get reward from convex reward contract----cvxcrv reward token
+    /// @dev function to get reward from convex reward contract----cvxcrv reward token.
+
     function getRewardFromConvexReward() public {
         IRewards(convexRewardContract).getReward(false);
     }
 
-    //function to get reward from  cvxcrv reward contract --crv,3crv,cvx
+    /// @dev function to get reward from  cvxcrv reward contract --crv,3crv,cvx.
+
     function getRewardFromcvxCRVReward() public returns (bool) {
         return getReward(address(this), cvxcrvRewardContract);
     }
 
-    //function to get reward from base pool
+    /// @dev function to get reward from base pool.
+
     function getRewardFromBasePool() public returns (bool) {
         (, , , address crvRewards, , ) = IConvex(convexDeposit).poolInfo(
             poolInfoID
@@ -731,7 +651,10 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         return getReward(address(this), crvRewards);
     }
 
-    // function to get reward from corresponding reward contract
+    /// @dev function to get reward from corresponding reward contract.
+    /// @param user address of the user .
+    /// @param rewardContract address of the reward contract.
+
     function getReward(address user, address rewardContract)
         internal
         returns (bool)
@@ -740,9 +663,13 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         return success;
     }
 
- function withdrawFromConvexReward(uint256 _strategyTokenValueInUSD,address _withdrawalAsset) internal
+    /// @dev function to withdraw rewards from convex reward contact. 
+    /// @param _strategyTokenValueInUSD Value of the strategy token in US dollar.
+    /// @param _withdrawalAsset address of the prefered withdrawal Asset.
+
+    function withdrawFromConvexReward(uint256 _strategyTokenValueInUSD,address _withdrawalAsset) internal
     returns(uint256,uint256,bool) {
-            
+           
             uint256 cvxTokenPriceInUSD = IAPContract(APContract).getUSDPrice(cvx);
             uint256 cvxTokenCount = _strategyTokenValueInUSD.mul(1e18).div(cvxTokenPriceInUSD);
             uint256 cvxTokensToWithdraw = IHexUtils(
@@ -755,30 +682,30 @@ contract ConvexCRV is ERC20, ERC20Detailed {
             if(cvxTokensToWithdraw >= cvxBalance){
                 IRewards(convexRewardContract).withdrawAll(false);
             }else{
-                IRewards(convexRewardContract).withdraw(cvxTokensToWithdraw,false);
+                IConvexReward(convexRewardContract).withdraw(cvxTokensToWithdraw,false);
                 withdrawSatisfied = true;
             }
-            
+           
             uint256 cvxBalanceInStrategy = IERC20(cvx).balanceOf(address(this)).sub(cvxBalanceInStrategyBefore);
             uint256 exchangedAmount = strictExchangeToken(cvx,_withdrawalAsset,cvxBalanceInStrategy);
-            //reduce amount of strategy token that has too be withdrawn from base pool
-            uint256 cvxUSDPriceForShares = cvxBalanceInStrategy.mul(cvxTokenPriceInUSD);
+            
+            uint256 cvxUSDPriceForShares = (cvxBalanceInStrategy.mul(cvxTokenPriceInUSD)).div(1e18);
             return (exchangedAmount,cvxUSDPriceForShares,withdrawSatisfied);
-            // strategyTokenValueInUSD -= cvxUSDPriceForShares;
+            
     }
-
-    /// @dev Function to withdraw strategy shares.
+    //onlyRegisteredVault (afer public)  
+    // @dev Function to withdraw strategy shares.
     /// @param _shares amount of strategy shares to withdraw.
     /// @param _withdrawalAsset Address of the prefered withdrawal asset.
     function withdraw(uint256 _shares, address _withdrawalAsset)
         public
-        onlyRegisteredVault
+        
         returns (
             bool,
             address,
             uint256
         )
-    {   revert("hey at 780");
+    {
         require(balanceOf(msg.sender) >= _shares, "Not enough shares");
         uint256 strategyTokenValueInUSD = (_shares.mul(getStrategyNAV())).div(
             totalSupply()
@@ -794,43 +721,46 @@ contract ConvexCRV is ERC20, ERC20Detailed {
             bool shutdown
         ) = IConvex(convexDeposit).poolInfo(poolInfoID);
         require(shutdown != true, "Pool shutdown");
-        //to store cvx exchanged amount
+        
         uint256 cvxExchangedWithdrawAsset;
 
-        //initially take tokens from convex reward pool
-        //check if exchange pair for cvx to withdraw token is present
-        IExchangeRegistry exchangeRegistry = IExchangeRegistry(
-            IAPContract(APContract).exchangeRegistry()
-        );
-        // address exchange = exchangeRegistry.getPair(cvx, withdrawalAsset);
-        bool withdrawComplete;
-        if(exchangeRegistry.getPair(cvx, withdrawalAsset) != address(0)){
-            uint256 cvxUSDPriceForShares;
-            (cvxExchangedWithdrawAsset,cvxUSDPriceForShares,withdrawComplete) = withdrawFromConvexReward(strategyTokenValueInUSD,withdrawalAsset);
-            //reduce amount of strategy token that has too be withdrawn from base pool
-            strategyTokenValueInUSD -= cvxUSDPriceForShares;
+        
+        uint256 cvxBalance = IRewards(convexRewardContract).balanceOf(address(this));
+        if(cvxBalance >0){
+            IExchangeRegistry exchangeRegistry = IExchangeRegistry(
+                IAPContract(APContract).exchangeRegistry()
+            );
+            
+            bool withdrawComplete =false;
+            if(exchangeRegistry.getPair(cvx, withdrawalAsset) != address(0)){
+                uint256 cvxUSDPriceForShares;
+                (cvxExchangedWithdrawAsset,cvxUSDPriceForShares,withdrawComplete) = withdrawFromConvexReward(strategyTokenValueInUSD,withdrawalAsset);
+              
+                strategyTokenValueInUSD = strategyTokenValueInUSD.sub(cvxUSDPriceForShares);
 
-        }
-        //returns if entire token is available in convex reward contract
-        if(withdrawComplete){
-            IERC20(withdrawalAsset).safeTransfer(
-                    msg.sender,
-                    cvxExchangedWithdrawAsset
-                );
+            }
+            
+            if(withdrawComplete){
+                IERC20(withdrawalAsset).safeTransfer(
+                        msg.sender,
+                        cvxExchangedWithdrawAsset
+                    );
                 return (true, withdrawalAsset, cvxExchangedWithdrawAsset);
+            }
         }
-
         return (withdrawFromBasePool(withdrawalAsset,strategyTokenValueInUSD,cvxExchangedWithdrawAsset,shares));
-
-       
-        
-        
+   
     }
+    /// @dev function to withdraw assets form basepool.
+    /// @param _withdrawalAsset address of the prefered withdrawal asset.
+    /// @param strategyTokenValueInUSD value of the strategy token in US dollar.
+    /// @param _cvxExchangedWithdrawAsset amount of preffered withdrawl asset got by exchanging  cvx tokens.
+    /// @param shares amount of strategy shares to withdraw
 
     function withdrawFromBasePool(
-        address _withdrawalAsset,uint256 strategyTokenValueInUSD,uint256 _cvxExchangedWithdrawAsset,uint256 shares) 
+        address _withdrawalAsset,uint256 strategyTokenValueInUSD,uint256 _cvxExchangedWithdrawAsset,uint256 shares)
         internal returns(bool,address,uint256){
-        
+       
         address withdrawalAsset=_withdrawalAsset;
         (
             address underlying,
@@ -838,7 +768,7 @@ contract ConvexCRV is ERC20, ERC20Detailed {
             ,
             address baseRewards,
             ,
-            
+           
         ) = IConvex(convexDeposit).poolInfo(poolInfoID);
 
         // uint256 protocolTokenUSD = IAPContract(APContract).getUSDPrice(
@@ -862,7 +792,7 @@ contract ConvexCRV is ERC20, ERC20Detailed {
             withdrawalAsset == boosterDepositToken
         ) {
             uint256 cvxExchangedWithdrawAsset = _cvxExchangedWithdrawAsset;
-            //Transfer deposit token directly to user
+            
             bool status = IRewards(baseRewards).withdraw(
                 protocolTokensToWithdraw,
                 false
@@ -890,7 +820,7 @@ contract ConvexCRV is ERC20, ERC20Detailed {
                 );
                 return (true, underlying, amount);
             }
-            //Transfer the base asset token to the user
+           
             else if (withdrawalAsset == baseToken) {
                 uint256 baseTokens = withdrawFromPool(
                     baseToken,
@@ -901,8 +831,7 @@ contract ConvexCRV is ERC20, ERC20Detailed {
                 IERC20(baseToken).safeTransfer(msg.sender, amount);
                 return (true, baseToken, amount);
             } else {
-                
-
+               
                 uint256 crv3Tokens = withdrawFromPool(
                     crv3Token,
                     underlying,
@@ -923,13 +852,12 @@ contract ConvexCRV is ERC20, ERC20Detailed {
                     msg.sender,
                     amount
                 );
-                
+               
                 return (true, withdrawalAsset, amount);
             }
         }
 
     }
- 
 
     /// @dev Function to remove Liquidity from Curve pool into 3Crv.
     /// @param lpToken Address of the LP token of the Curve pool.
@@ -999,7 +927,11 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         IERC20(_tokenAddres).safeTransfer(msg.sender, _tokenAmount);
     }
 
-    function paybackExecutor(address beneficiary,uint256 gasTokenCount) external {
+     /// @dev function for paying back the executor.
+     /// @param beneficiary address of the beneficiary.
+     /// @param gasTokenCount amount of gas Token.
+
+     function paybackExecutor(address beneficiary,uint256 gasTokenCount) external {
         require(
             address(this) ==
                 IAPContract(APContract).getStrategyFromMinter(msg.sender),
@@ -1009,12 +941,7 @@ contract ConvexCRV is ERC20, ERC20Detailed {
             convexDeposit
         ).poolInfo(poolInfoID);
 
-        // uint256 gasTokenUSD = IAPContract(APContract).getUSDPrice(underlying);
-        // uint256 gasCostUSD = (
-        //     gasCost.mul(IAPContract(APContract).getUSDPrice(address(0)))
-        // ).div(1e18);
-        // uint256 gasTokenCount = IHexUtils(IAPContract(APContract).stringUtils())
-        //     .fromDecimals(underlying, (gasCostUSD.mul(1e18)).div(gasTokenUSD));
+       
 
         require(
             gasTokenCount < IRewards(baseRewards).balanceOf(address(this)),
@@ -1030,3 +957,5 @@ contract ConvexCRV is ERC20, ERC20Detailed {
         IERC20(underlying).safeTransfer(beneficiary, gasTokenCount);
     }
 }
+
+

@@ -9,12 +9,18 @@ module.exports = async (deployer, network, accounts) => {
     await deployer.deploy(ConvexCRV,
         "USDN CVX Strategy",
         "USDN-CVX",
-        apContract.address,
-        "13",
-        "0x674C6Ad92Fd080e4004b2312b45f796a192D27a0"
+    //     apContract.address,
+    //     "13",
+    //     "0x674C6Ad92Fd080e4004b2312b45f796a192D27a0"
+    // 
     );
 
     const cvxUSDN = await ConvexCRV.deployed()
+    console.log("this is it",cvxUSDN.methods)
+    await cvxUSDN.setAPContract(apContract.address)
+    console.log("ap contract set");
+    await cvxUSDN.setProtocol("13","0x674C6Ad92Fd080e4004b2312b45f796a192D27a0")
+
     await deployer.deploy(ConvexCRVMinter, apContract.address, cvxUSDN.address)
 
     const convexCRVMinter = await ConvexCRVMinter.deployed()
